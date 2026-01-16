@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Focus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Daily Focus</h1>
+    <p id="fullDate"></p>
+  </header>
+
+  <!-- Date Strip -->
+  <section id="dateStrip"></section>
+
+  <!-- Task List -->
+  <main id="taskList"></main>
+
+  <!-- Fixed Input -->
+  <footer id="taskInput">
+    <input id="newTaskInput" placeholder="Add a task for today">
+    <button id="addTaskBtn">Add</button>
+  </footer>
+
+<script>
+/* =========================
+   Phase 5 — Core Logic
+========================= */
+
+const STORAGE_KEY = "daily-focus-data";
+
+// --- Utilities ---
+function getToday() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function loadData() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    activeDate: getToday(),
+    days: {}
+  };
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// --- App State ---
+let data = loadData();
+const today = getToday();
+data.activeDate = today;
+
+// Ensure today exists
+if (!data.days[today]) {
+  data.days[today] = [];
+}
+
+saveData(data);
+
+// --- Render Header ---
+document.getElementById("fullDate").textContent =
+  new Date(today).toDateString();
+
+// --- Render Date Strip ---
+function renderDateStrip() {
+  const strip = document.getElementById("dateStrip");
+  strip.innerHTML = "";
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split("T")[0];
+
+    const btn = document.createElement("button");
+    btn.textContent = d.getDate();
+    btn.onclick = () => selectDate(dateStr);
+
+    if (dateStr === data.activeDate) {
+      btn.style.fontWeight = "bold";
+    }
+
+    strip.appendChild(btn);
+  }
+}
+
+// --- Select Date ---
+function selectDate(date) {
+  data.activeDate = date;
+  saveData(data);
+  render();
+}
+
+// --- Render Tasks ---
+function renderTasks() {
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  const tasks = data.days[data.activeDate] || [];
+
+  if (tasks.length === 0) {
+    list.textContent = "No tasks added on this day.";
+    return;
+  }
+
+  tasks.forEach(task => {
+    const item = document.createElement("div");
+    item.textContent = task.completed ? "✅ " + task.text : "❌ " + task.text;
+    list.appendChild(item);
+  });
+}
+
+// --- Add Task ---
+document.getElementById("addTaskBtn").onclick = () => {
+  if (data.activeDate !== today) return;
+
+  const input = document.getElementById("newTaskInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  data.days[today].push({ text, completed: false });
+  input.value = "";
+  saveData(data);
+  renderTasks();
+};
+
+// --- Main Render ---
+function render() {
+  renderDateStrip();
+  renderTasks();
+
+  document.getElementById("taskInput").style.display =
+    data.activeDate === today ? "block" : "none";
+}
+
+render();
+
+</script>
+</body>
+</html>
