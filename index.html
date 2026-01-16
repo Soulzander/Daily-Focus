@@ -4,6 +4,29 @@
   <meta charset="UTF-8">
   <title>Daily Focus</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  header, #dateStrip, #actionZone {
+    padding: 8px;
+  }
+
+  #actionZone {
+    border-bottom: 1px solid #ccc;
+  }
+
+  #taskList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  </style> 
+
 </head>
 <body>
 
@@ -16,14 +39,14 @@
   <!-- Date Strip -->
   <section id="dateStrip"></section>
 
-  <!-- Task List -->
-  <main id="taskList"></main>
+  <!-- Action Zone (Fixed Position) -->
+<section id="actionZone">
+  <input id="newTaskInput" placeholder="Add a task for today">
+  <button id="addTaskBtn">Add</button>
+</section>
 
-  <!-- Fixed Input -->
-  <footer id="taskInput">
-    <input id="newTaskInput" placeholder="Add a task for today">
-    <button id="addTaskBtn">Add</button>
-  </footer>
+<!-- Scrollable Task List -->
+<main id="taskList"></main>
 
 <script>
 /* =========================
