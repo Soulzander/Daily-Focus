@@ -122,19 +122,39 @@ function renderTasks() {
   list.innerHTML = "";
 
   const tasks = data.days[data.activeDate] || [];
+  const isToday = data.activeDate === today;
 
   if (tasks.length === 0) {
     list.textContent = "No tasks added on this day.";
     return;
   }
 
-  tasks.forEach(task => {
+  tasks.forEach((task, index) => {
     const item = document.createElement("div");
     item.textContent = task.completed ? "✅ " + task.text : "❌ " + task.text;
+
+    if (isToday) {
+      item.style.cursor = "pointer";
+      item.onclick = () => toggleTask(index);
+    } else {
+      item.style.opacity = "0.6";
+    }
+
     list.appendChild(item);
   });
 }
+  
+// --- Toggle Task Completion ---
+function toggleTask(index) {
+  if (data.activeDate !== today) return;
 
+  const task = data.days[today][index];
+  task.completed = !task.completed;
+
+  saveData(data);
+  renderTasks();
+}
+  
 // --- Add Task ---
 document.getElementById("addTaskBtn").onclick = () => {
   if (data.activeDate !== today) return;
