@@ -25,6 +25,13 @@
     overflow-y: auto;
     padding: 8px;
   }
+  #observeBtn {
+  margin: 8px;
+}
+
+#observationPanel {
+  padding: 8px;
+}
   /* --- Task States --- */
 .task {
   padding: 8px;
@@ -80,7 +87,13 @@
 
 <!-- Scrollable Task List -->
 <main id="taskList"></main>
+<button id="observeBtn">Observation</button>
 
+<section id="observationPanel" style="display:none;">
+  <h3>Observation</h3>
+  <p id="obsSummary"></p>
+  <canvas id="obsChart" width="200" height="200"></canvas>
+</section>
 <script>
 /* =========================
    Phase 5 — Core Logic
@@ -214,7 +227,55 @@ document.getElementById("addTaskBtn").onclick = () => {
   saveData(data);
   renderTasks();
 };
+// --- Observation Button ---
+document.getElementById("observeBtn").onclick = () => {
+  showObservation();
+};
 
+function showObservation() {
+  const panel = document.getElementById("observationPanel");
+  const list = document.getElementById("taskList");
+
+  list.style.display = "none";
+  panel.style.display = "block";
+
+  const tasks = data.days[data.activeDate] || [];
+  const completed = tasks.filter(t => t.completed).length;
+  const missed = tasks.length - completed;
+
+  document.getElementById("obsSummary").textContent =
+    `Completed: ${completed}, Missed: ${missed}`;
+
+  drawPieChart(completed, missed);
+}
+function drawPieChart(completed, missed) {
+  const canvas = document.getElementById("obsChart");
+  const ctx = canvas.getContext("2d");
+  const total = completed + missed;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (total === 0) return;
+
+  let startAngle = 0;
+
+  const completedAngle = (completed / total) * Math.PI * 2;
+  ctx.fillStyle = "#2e7d32";
+  ctx.beginPath();
+  ctx.moveTo(100, 100);
+  ctx.arc(100, 100, 80, startAngle, startAngle + completedAngle);
+  ctx.fill();
+
+  startAngle += completedAngle;
+
+  const missedAngle = (missed / total) * Math.PI * 2;
+  ctx.fillStyle = "#b71c1c";
+  ctx.beginPath();
+  ctx.moveTo(100, 100);
+  ctx.arc(100, 100, 80, startAngle, startAngle + missedAngle);
+  ctx.fill();
+}
+  
 // --- Main Render ---
 function render() {
   renderDateStrip();
