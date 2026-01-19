@@ -26,19 +26,7 @@
       overflow-y: auto;
       padding: 8px;
     }
-
-    #observeBtn {
-      margin-top: 6px;
-    }
-    #addTaskBtn,
-#observeBtn {
-  height: 44px;
-  padding: 0 16px;
-  font-size: 16px;
-  border-radius: 8px;
-  margin-top: 8px;
-}
-
+    
     #observationPanel {
       padding: 8px;
     }
@@ -92,6 +80,19 @@
     .task.clickable {
       cursor: pointer;
     }
+    /* --- Action Buttons Row (Add + Observation) --- */
+#actionButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#actionButtons button {
+  flex: 1;              /* full width split */
+  height: 48px;
+  font-size: 16px;
+  border-radius: 10px;
+}
   </style>
 </head>
 
@@ -113,8 +114,10 @@
     <button class="diff-btn" data-diff="3">Hard</button>
   </div>
 
+  <div id="actionButtons">
   <button id="addTaskBtn">Add</button>
   <button id="observeBtn">Observation</button>
+</div>
 </section>
 
 <main id="taskList"></main>
