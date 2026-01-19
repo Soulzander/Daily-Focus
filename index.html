@@ -5,88 +5,110 @@
   <title>Daily Focus</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-  body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
 
-  header, #dateStrip, #actionZone {
-    padding: 8px;
-  }
+    header, #dateStrip, #actionZone {
+      padding: 8px;
+    }
 
-  #actionZone {
-    border-bottom: 1px solid #ccc;
-  }
+    #actionZone {
+      border-bottom: 1px solid #ccc;
+    }
 
-  #taskList {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-  }
-  #observeBtn {
-  margin: 8px;
-}
+    #taskList {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
 
-#observationPanel {
-  padding: 8px;
-}
-  /* --- Task States --- */
-.task {
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-}
+    #observeBtn {
+      margin-top: 6px;
+    }
 
-/* Completed task */
-.task.completed {
-  color: #2e7d32;
-  opacity: 0.7;
-}
+    #observationPanel {
+      padding: 8px;
+    }
 
-/* Incomplete today */
-.task.incomplete-today {
-  color: #222;
-}
+    /* --- Difficulty Buttons --- */
+    #difficultySelector {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
 
-/* Missed task (past days) */
-.task.missed {
-  color: #b71c1c;
-  opacity: 0.8;
-}
+    .diff-btn {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f5f5f5;
+      cursor: pointer;
+    }
 
-/* Read-only look for past days */
-.task.read-only {
-  cursor: default;
-}
+    .diff-btn.active {
+      background: #222;
+      color: #fff;
+    }
 
-/* Clickable look for today */
-.task.clickable {
-  cursor: pointer;
-}
-  </style> 
+    /* --- Task States --- */
+    .task {
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+    }
 
+    .task.completed {
+      color: #2e7d32;
+      opacity: 0.7;
+    }
+
+    .task.incomplete-today {
+      color: #222;
+    }
+
+    .task.missed {
+      color: #b71c1c;
+      opacity: 0.8;
+    }
+
+    .task.read-only {
+      cursor: default;
+    }
+
+    .task.clickable {
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-  <!-- Header -->
-  <header>
-    <h1>Daily Focus</h1>
-    <p id="fullDate"></p>
-  </header>
+<header>
+  <h1>Daily Focus</h1>
+  <p id="fullDate"></p>
+</header>
 
-  <!-- Date Strip -->
-  <section id="dateStrip"></section>
+<section id="dateStrip"></section>
 
-  <!-- Action Zone (Fixed Position) -->
 <section id="actionZone">
   <input id="newTaskInput" placeholder="Add a task for today">
+
+  <div id="difficultySelector">
+    <button class="diff-btn active" data-diff="1">Easy</button>
+    <button class="diff-btn" data-diff="2">Medium</button>
+    <button class="diff-btn" data-diff="3">Hard</button>
+  </div>
+
   <button id="addTaskBtn">Add</button>
   <button id="observeBtn">Observation</button>
 </section>
 
-<!-- Scrollable Task List -->
 <main id="taskList"></main>
 
 <section id="observationPanel" style="display:none;">
@@ -94,14 +116,14 @@
   <p id="obsSummary"></p>
   <canvas id="obsChart" width="200" height="200"></canvas>
 </section>
+
 <script>
 /* =========================
-   Phase 5 — Core Logic
+   Core State
 ========================= */
 
 const STORAGE_KEY = "daily-focus-data";
 
-// --- Utilities ---
 function getToday() {
   return new Date().toISOString().split("T")[0];
 }
@@ -117,23 +139,34 @@ function saveData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// --- App State ---
 let data = loadData();
 const today = getToday();
 data.activeDate = today;
 
-// Ensure today exists
-if (!data.days[today]) {
-  data.days[today] = [];
-}
-
+if (!data.days[today]) data.days[today] = [];
 saveData(data);
 
-// --- Render Header ---
 document.getElementById("fullDate").textContent =
   new Date(today).toDateString();
 
-// --- Render Date Strip ---
+/* =========================
+   Difficulty State
+========================= */
+
+let selectedDifficulty = 1;
+
+document.querySelectorAll(".diff-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".diff-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedDifficulty = Number(btn.dataset.diff);
+  };
+});
+
+/* =========================
+   Date Strip
+========================= */
+
 function renderDateStrip() {
   const strip = document.getElementById("dateStrip");
   strip.innerHTML = "";
@@ -147,15 +180,12 @@ function renderDateStrip() {
     btn.textContent = d.getDate();
     btn.onclick = () => selectDate(dateStr);
 
-    if (dateStr === data.activeDate) {
-      btn.style.fontWeight = "bold";
-    }
+    if (dateStr === data.activeDate) btn.style.fontWeight = "bold";
 
     strip.appendChild(btn);
   }
 }
 
-// --- Select Date ---
 function selectDate(date) {
   closeObservation();
   data.activeDate = date;
@@ -163,7 +193,10 @@ function selectDate(date) {
   render();
 }
 
-// --- Render Tasks ---
+/* =========================
+   Tasks
+========================= */
+
 function renderTasks() {
   const list = document.getElementById("taskList");
   list.innerHTML = "";
@@ -177,45 +210,37 @@ function renderTasks() {
   }
 
   tasks.forEach((task, index) => {
-  const item = document.createElement("div");
-  item.classList.add("task");
+    const item = document.createElement("div");
+    item.classList.add("task");
 
-  const isCompleted = task.completed;
-  const isPastDay = !isToday;
+    const completed = task.completed;
+    const past = !isToday;
 
-  item.textContent = (isCompleted ? "✅ " : "❌ ") + task.text;
+    item.textContent = (completed ? "✅ " : "❌ ") + task.text;
 
-  if (isCompleted) {
-    item.classList.add("completed");
-  } else if (isPastDay) {
-    item.classList.add("missed");
-  } else {
-    item.classList.add("incomplete-today");
-  }
+    if (completed) item.classList.add("completed");
+    else if (past) item.classList.add("missed");
+    else item.classList.add("incomplete-today");
 
-  if (isToday) {
-    item.classList.add("clickable");
-    item.onclick = () => toggleTask(index);
-  } else {
-    item.classList.add("read-only");
-  }
+    if (isToday) {
+      item.classList.add("clickable");
+      item.onclick = () => toggleTask(index);
+    } else {
+      item.classList.add("read-only");
+    }
 
-  list.appendChild(item);
-});
+    list.appendChild(item);
+  });
 }
-  
-// --- Toggle Task Completion ---
+
 function toggleTask(index) {
   if (data.activeDate !== today) return;
-
   const task = data.days[today][index];
   task.completed = !task.completed;
-
   saveData(data);
   renderTasks();
 }
-  
-// --- Add Task ---
+
 document.getElementById("addTaskBtn").onclick = () => {
   if (data.activeDate !== today) return;
 
@@ -223,12 +248,23 @@ document.getElementById("addTaskBtn").onclick = () => {
   const text = input.value.trim();
   if (!text) return;
 
-  data.days[today].push({ text, completed: false });
+  data.days[today].push({
+    text,
+    completed: false,
+    difficulty: selectedDifficulty
+  });
+
   input.value = "";
   saveData(data);
   renderTasks();
 };
-// --- Observation Button ---
+
+/* =========================
+   Observation Mode
+========================= */
+
+let observing = false;
+
 document.getElementById("observeBtn").onclick = () => {
   toggleObservation();
 };
@@ -236,75 +272,73 @@ document.getElementById("observeBtn").onclick = () => {
 function showObservation() {
   observing = true;
 
-  const panel = document.getElementById("observationPanel");
-  const list = document.getElementById("taskList");
-
-  list.style.display = "none";
-  panel.style.display = "block";
+  document.getElementById("taskList").style.display = "none";
+  document.getElementById("observationPanel").style.display = "block";
 
   const tasks = data.days[data.activeDate] || [];
-  const completed = tasks.filter(t => t.completed).length;
-  const missed = tasks.length - completed;
+
+  let completed = 0;
+  let missed = 0;
+
+  tasks.forEach(t => {
+    const weight = t.difficulty || 1;
+    if (t.completed) completed += weight;
+    else missed += weight;
+  });
 
   document.getElementById("obsSummary").textContent =
-    `Completed: ${completed}, Missed: ${missed}`;
+    `Effort completed: ${completed}, Effort missed: ${missed}`;
 
   drawPieChart(completed, missed);
 }
-let observing = false;
 
 function toggleObservation() {
-  if (observing) {
-    closeObservation();
-  } else {
-    showObservation();
-  }
+  observing ? closeObservation() : showObservation();
 }
+
 function closeObservation() {
   observing = false;
-
   document.getElementById("observationPanel").style.display = "none";
   document.getElementById("taskList").style.display = "block";
 }
+
 function drawPieChart(completed, missed) {
   const canvas = document.getElementById("obsChart");
   const ctx = canvas.getContext("2d");
   const total = completed + missed;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   if (total === 0) return;
 
-  let startAngle = 0;
+  let start = 0;
 
-  const completedAngle = (completed / total) * Math.PI * 2;
+  const green = (completed / total) * Math.PI * 2;
   ctx.fillStyle = "#2e7d32";
   ctx.beginPath();
   ctx.moveTo(100, 100);
-  ctx.arc(100, 100, 80, startAngle, startAngle + completedAngle);
+  ctx.arc(100, 100, 80, start, start + green);
   ctx.fill();
 
-  startAngle += completedAngle;
+  start += green;
 
-  const missedAngle = (missed / total) * Math.PI * 2;
+  const red = (missed / total) * Math.PI * 2;
   ctx.fillStyle = "#b71c1c";
   ctx.beginPath();
   ctx.moveTo(100, 100);
-  ctx.arc(100, 100, 80, startAngle, startAngle + missedAngle);
+  ctx.arc(100, 100, 80, start, start + red);
   ctx.fill();
 }
-  
-// --- Main Render ---
+
+/* =========================
+   Render
+========================= */
+
 function render() {
   renderDateStrip();
   renderTasks();
-
-  document.getElementById("taskInput").style.display =
-    data.activeDate === today ? "block" : "none";
 }
 
 render();
-
 </script>
 </body>
 </html>
