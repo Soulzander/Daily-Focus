@@ -157,6 +157,7 @@ function renderDateStrip() {
 
 // --- Select Date ---
 function selectDate(date) {
+  closeObservation();
   data.activeDate = date;
   saveData(data);
   render();
@@ -229,10 +230,12 @@ document.getElementById("addTaskBtn").onclick = () => {
 };
 // --- Observation Button ---
 document.getElementById("observeBtn").onclick = () => {
-  showObservation();
+  toggleObservation();
 };
 
 function showObservation() {
+  observing = true;
+
   const panel = document.getElementById("observationPanel");
   const list = document.getElementById("taskList");
 
@@ -247,6 +250,21 @@ function showObservation() {
     `Completed: ${completed}, Missed: ${missed}`;
 
   drawPieChart(completed, missed);
+}
+let observing = false;
+
+function toggleObservation() {
+  if (observing) {
+    closeObservation();
+  } else {
+    showObservation();
+  }
+}
+function closeObservation() {
+  observing = false;
+
+  document.getElementById("observationPanel").style.display = "none";
+  document.getElementById("taskList").style.display = "block";
 }
 function drawPieChart(completed, missed) {
   const canvas = document.getElementById("obsChart");
