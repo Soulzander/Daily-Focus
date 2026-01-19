@@ -26,12 +26,12 @@
       overflow-y: auto;
       padding: 8px;
     }
-    
+
     #observationPanel {
       padding: 8px;
     }
 
-    /* --- Difficulty Buttons --- */
+    /* Difficulty buttons */
     #difficultySelector {
       display: flex;
       gap: 6px;
@@ -52,53 +52,46 @@
       color: #fff;
     }
 
-    /* --- Task States --- */
+    /* Task states */
     .task {
       padding: 8px;
       margin-bottom: 6px;
       border-radius: 6px;
     }
 
-    .task.completed {
-      color: #2e7d32;
-      opacity: 0.7;
+    .task.completed { color: #2e7d32; opacity: 0.7; }
+    .task.incomplete-today { color: #222; }
+    .task.missed { color: #b71c1c; opacity: 0.8; }
+    .task.read-only { cursor: default; }
+    .task.clickable { cursor: pointer; }
+
+    /* Action buttons */
+    #actionButtons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
     }
 
-    .task.incomplete-today {
-      color: #222;
+    #actionButtons button {
+      flex: 1;
+      height: 48px;
+      font-size: 16px;
+      border-radius: 10px;
     }
 
-    .task.missed {
-      color: #b71c1c;
-      opacity: 0.8;
+    /* Insights */
+    #obsInsight {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.4;
     }
 
-    .task.read-only {
-      cursor: default;
+    #weeklyInsight {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #666;
     }
-
-    .task.clickable {
-      cursor: pointer;
-    }
-    /* --- Action Buttons Row (Add + Observation) --- */
-#actionButtons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-#actionButtons button {
-  flex: 1;              /* full width split */
-  height: 48px;
-  font-size: 16px;
-  border-radius: 10px;
-}
-#obsInsight {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #444;
-  line-height: 1.4;
-}
   </style>
 </head>
 
@@ -121,9 +114,9 @@
   </div>
 
   <div id="actionButtons">
-  <button id="addTaskBtn">Add</button>
-  <button id="observeBtn">Observation</button>
-</div>
+    <button id="addTaskBtn">Add</button>
+    <button id="observeBtn">Observation</button>
+  </div>
 </section>
 
 <main id="taskList"></main>
@@ -133,6 +126,7 @@
   <p id="obsSummary"></p>
   <canvas id="obsChart" width="200" height="200"></canvas>
   <p id="obsInsight"></p>
+  <p id="weeklyInsight"></p>
 </section>
 
 <script>
@@ -199,7 +193,6 @@ function renderDateStrip() {
     btn.onclick = () => selectDate(dateStr);
 
     if (dateStr === data.activeDate) btn.style.fontWeight = "bold";
-
     strip.appendChild(btn);
   }
 }
@@ -231,13 +224,10 @@ function renderTasks() {
     const item = document.createElement("div");
     item.classList.add("task");
 
-    const completed = task.completed;
-    const past = !isToday;
+    item.textContent = (task.completed ? "✅ " : "❌ ") + task.text;
 
-    item.textContent = (completed ? "✅ " : "❌ ") + task.text;
-
-    if (completed) item.classList.add("completed");
-    else if (past) item.classList.add("missed");
+    if (task.completed) item.classList.add("completed");
+    else if (!isToday) item.classList.add("missed");
     else item.classList.add("incomplete-today");
 
     if (isToday) {
@@ -278,13 +268,46 @@ document.getElementById("addTaskBtn").onclick = () => {
 };
 
 /* =========================
+   Weekly Insight (Phase 11)
+========================= */
+
+function generateWeeklyInsight() {
+  let completed = 0;
+  let missed = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split("T")[0];
+
+    const tasks = data.days[dateStr] || [];
+    tasks.forEach(t => {
+      const weight = t.difficulty || 1;
+      if (t.completed) completed += weight;
+      else missed += weight;
+    });
+  }
+
+  if (completed === 0 && missed === 0)
+    return "No activity recorded in the last 7 days.";
+
+  if (missed > completed)
+    return "More effort was missed than completed over the last 7 days.";
+
+  if (completed > missed * 2)
+    return "Strong consistency across the last 7 days.";
+
+  return "Effort and completion are balanced over the last 7 days.";
+}
+
+/* =========================
    Observation Mode
 ========================= */
 
 let observing = false;
 
 document.getElementById("observeBtn").onclick = () => {
-  toggleObservation();
+  observing ? closeObservation() : showObservation();
 };
 
 function showObservation() {
@@ -294,7 +317,6 @@ function showObservation() {
   document.getElementById("observationPanel").style.display = "block";
 
   const tasks = data.days[data.activeDate] || [];
-
   let completed = 0;
   let missed = 0;
 
@@ -308,23 +330,19 @@ function showObservation() {
     `Effort completed: ${completed}, Effort missed: ${missed}`;
 
   drawPieChart(completed, missed);
+
   let insight = "";
+  if (completed === 0 && missed > 0)
+    insight = "All planned effort was missed today. Consider lowering task difficulty.";
+  else if (completed > 0 && missed === 0)
+    insight = "You completed everything you planned today. Effort balance looks good.";
+  else if (completed >= missed)
+    insight = "More effort was completed than missed. Consistency is forming.";
+  else
+    insight = "Missed effort outweighs completion. Review task difficulty or volume.";
 
-if (completed === 0 && missed > 0) {
-  insight = "All planned effort was missed today. Consider lowering task difficulty.";
-} else if (completed > 0 && missed === 0) {
-  insight = "You completed everything you planned today. Effort balance looks good.";
-} else if (completed >= missed) {
-  insight = "More effort was completed than missed. Consistency is forming.";
-} else {
-  insight = "Missed effort outweighs completion. Review task difficulty or volume.";
-}
-
-document.getElementById("obsInsight").textContent = insight;
-}
-
-function toggleObservation() {
-  observing ? closeObservation() : showObservation();
+  document.getElementById("obsInsight").textContent = insight;
+  document.getElementById("weeklyInsight").textContent = generateWeeklyInsight();
 }
 
 function closeObservation() {
@@ -332,6 +350,10 @@ function closeObservation() {
   document.getElementById("observationPanel").style.display = "none";
   document.getElementById("taskList").style.display = "block";
 }
+
+/* =========================
+   Pie Chart
+========================= */
 
 function drawPieChart(completed, missed) {
   const canvas = document.getElementById("obsChart");
@@ -342,8 +364,8 @@ function drawPieChart(completed, missed) {
   if (total === 0) return;
 
   let start = 0;
-
   const green = (completed / total) * Math.PI * 2;
+
   ctx.fillStyle = "#2e7d32";
   ctx.beginPath();
   ctx.moveTo(100, 100);
@@ -352,11 +374,10 @@ function drawPieChart(completed, missed) {
 
   start += green;
 
-  const red = (missed / total) * Math.PI * 2;
   ctx.fillStyle = "#b71c1c";
   ctx.beginPath();
   ctx.moveTo(100, 100);
-  ctx.arc(100, 100, 80, start, start + red);
+  ctx.arc(100, 100, 80, start, start + (missed / total) * Math.PI * 2);
   ctx.fill();
 }
 
