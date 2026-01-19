@@ -92,6 +92,13 @@
       font-size: 13px;
       color: #666;
     }
+
+    #difficultyInsight {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #555;
+      font-style: italic;
+    }
   </style>
 </head>
 
@@ -127,6 +134,7 @@
   <canvas id="obsChart" width="200" height="200"></canvas>
   <p id="obsInsight"></p>
   <p id="weeklyInsight"></p>
+  <p id="difficultyInsight"></p>
 </section>
 
 <script>
@@ -268,7 +276,7 @@ document.getElementById("addTaskBtn").onclick = () => {
 };
 
 /* =========================
-   Weekly Insight (Phase 11)
+   Phase 11 — Weekly Insight
 ========================= */
 
 function generateWeeklyInsight() {
@@ -298,6 +306,48 @@ function generateWeeklyInsight() {
     return "Strong consistency across the last 7 days.";
 
   return "Effort and completion are balanced over the last 7 days.";
+}
+
+/* =========================
+   Phase 12 — Difficulty Intelligence
+========================= */
+
+function generateDifficultyInsight() {
+  const stats = {
+    1: { done: 0, total: 0 },
+    2: { done: 0, total: 0 },
+    3: { done: 0, total: 0 }
+  };
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split("T")[0];
+
+    const tasks = data.days[dateStr] || [];
+    tasks.forEach(t => {
+      const diff = t.difficulty || 1;
+      stats[diff].total++;
+      if (t.completed) stats[diff].done++;
+    });
+  }
+
+  let worst = null;
+  let worstRate = 1;
+
+  for (let d = 1; d <= 3; d++) {
+    if (stats[d].total === 0) continue;
+    const rate = stats[d].done / stats[d].total;
+    if (rate < worstRate) {
+      worstRate = rate;
+      worst = d;
+    }
+  }
+
+  if (!worst) return "";
+
+  const name = worst === 1 ? "Easy" : worst === 2 ? "Medium" : "Hard";
+  return `${name} tasks show the lowest completion rate this week. Consider adjusting difficulty or workload.`;
 }
 
 /* =========================
@@ -343,6 +393,7 @@ function showObservation() {
 
   document.getElementById("obsInsight").textContent = insight;
   document.getElementById("weeklyInsight").textContent = generateWeeklyInsight();
+  document.getElementById("difficultyInsight").textContent = generateDifficultyInsight();
 }
 
 function closeObservation() {
