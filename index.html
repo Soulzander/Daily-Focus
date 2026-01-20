@@ -1,442 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Daily Focus</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      font-family: system-ui, sans-serif;
-    }
+<meta charset="UTF-8">
+<title>Daily Focus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    header, #dateStrip, #actionZone {
-      padding: 8px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-    #actionZone {
-      border-bottom: 1px solid #ccc;
-    }
+header, #dateStrip, #actionZone {
+  padding: 8px;
+}
 
-    #taskList {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-    }
+#actionZone {
+  border-bottom: 1px solid #ccc;
+}
 
-    #observationPanel {
-      padding: 8px;
-    }
+#taskList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
 
-    /* Difficulty buttons */
-    #difficultySelector {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-    }
+.task {
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+}
 
-    .diff-btn {
-      flex: 1;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #f5f5f5;
-      cursor: pointer;
-    }
+.task.completed { color: #2e7d32; opacity: 0.7; }
+.task.incomplete-today { color: #222; }
+.task.missed { color: #b71c1c; opacity: 0.8; }
+.task.clickable { cursor: pointer; }
+.task.read-only { cursor: default; }
 
-    .diff-btn.active {
-      background: #222;
-      color: #fff;
-    }
+/* Difficulty */
+#difficultySelector {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
 
-    /* Task states */
-    .task {
-      padding: 8px;
-      margin-bottom: 6px;
-      border-radius: 6px;
-    }
+.diff-btn {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f5f5f5;
+}
 
-    .task.completed { color: #2e7d32; opacity: 0.7; }
-    .task.incomplete-today { color: #222; }
-    .task.missed { color: #b71c1c; opacity: 0.8; }
-    .task.read-only { cursor: default; }
-    .task.clickable { cursor: pointer; }
+.diff-btn.active {
+  background: #222;
+  color: white;
+}
 
-    /* Action buttons */
-    #actionButtons {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
+/* Action buttons */
+#actionButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
 
-    #actionButtons button {
-      flex: 1;
-      height: 48px;
-      font-size: 16px;
-      border-radius: 10px;
-    }
+#actionButtons button {
+  flex: 1;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 10px;
+}
 
-    /* Insights */
-    #obsInsight {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #444;
-      line-height: 1.4;
-    }
+/* Panels */
+#observationPanel, #statsPanel {
+  padding: 8px;
+  display: none;
+}
 
-    #weeklyInsight {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #666;
-    }
+#obsInsight, #weeklyInsight, #difficultyInsight, #streakInsight {
+  font-size: 14px;
+  margin-top: 8px;
+}
 
-    #difficultyInsight {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #555;
-      font-style: italic;
-    }
-  </style>
+#weeklyInsight { color: #666; }
+#difficultyInsight { font-style: italic; color: #555; }
+#streakInsight { color: #b71c1c; }
+
+/* Stats */
+.statBlock {
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f4f4f4;
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>Daily Focus</h1>
-  <p id="fullDate"></p>
+<h2>Daily Focus</h2>
+<p id="fullDate"></p>
 </header>
 
 <section id="dateStrip"></section>
 
 <section id="actionZone">
-  <input id="newTaskInput" placeholder="Add a task for today">
+<input id="newTaskInput" placeholder="Add a task for today">
 
-  <div id="difficultySelector">
-    <button class="diff-btn active" data-diff="1">Easy</button>
-    <button class="diff-btn" data-diff="2">Medium</button>
-    <button class="diff-btn" data-diff="3">Hard</button>
-  </div>
+<div id="difficultySelector">
+<button class="diff-btn active" data-diff="1">Easy</button>
+<button class="diff-btn" data-diff="2">Medium</button>
+<button class="diff-btn" data-diff="3">Hard</button>
+</div>
 
-  <div id="actionButtons">
-    <button id="addTaskBtn">Add</button>
-    <button id="observeBtn">Observation</button>
-  </div>
+<div id="actionButtons">
+<button id="addTaskBtn">Add</button>
+<button id="observeBtn">Observation</button>
+<button id="statsBtn">Statistics</button>
+</div>
 </section>
 
 <main id="taskList"></main>
 
-<section id="observationPanel" style="display:none;">
-  <h3>Observation</h3>
-  <p id="obsSummary"></p>
-  <canvas id="obsChart" width="200" height="200"></canvas>
-  <p id="obsInsight"></p>
-  <p id="weeklyInsight"></p>
-  <p id="difficultyInsight"></p>
+<section id="observationPanel">
+<h3>Observation</h3>
+<p id="obsSummary"></p>
+<canvas id="obsChart" width="200" height="200"></canvas>
+<p id="obsInsight"></p>
+<p id="weeklyInsight"></p>
+<p id="difficultyInsight"></p>
+<p id="streakInsight"></p>
+</section>
+
+<section id="statsPanel">
+<h3>Statistics</h3>
+<div class="statBlock" id="stat7"></div>
+<div class="statBlock" id="stat14"></div>
+<div class="statBlock" id="stat30"></div>
 </section>
 
 <script>
-/* =========================
-   Core State
-========================= */
-
 const STORAGE_KEY = "daily-focus-data";
 
 function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
-function loadData() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-    activeDate: getToday(),
-    days: {}
-  };
-}
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-let data = loadData();
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDate:getToday() };
 const today = getToday();
 data.activeDate = today;
-
 if (!data.days[today]) data.days[today] = [];
-saveData(data);
+localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-document.getElementById("fullDate").textContent =
-  new Date(today).toDateString();
+document.getElementById("fullDate").textContent = new Date(today).toDateString();
 
-/* =========================
-   Difficulty State
-========================= */
-
+/* Difficulty */
 let selectedDifficulty = 1;
-
-document.querySelectorAll(".diff-btn").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll(".diff-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedDifficulty = Number(btn.dataset.diff);
+document.querySelectorAll(".diff-btn").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll(".diff-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    selectedDifficulty = Number(b.dataset.diff);
   };
 });
 
-/* =========================
-   Date Strip
-========================= */
-
-function renderDateStrip() {
-  const strip = document.getElementById("dateStrip");
-  strip.innerHTML = "";
-
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-
-    const btn = document.createElement("button");
-    btn.textContent = d.getDate();
-    btn.onclick = () => selectDate(dateStr);
-
-    if (dateStr === data.activeDate) btn.style.fontWeight = "bold";
+/* Dates */
+function renderDateStrip(){
+  const strip=document.getElementById("dateStrip");
+  strip.innerHTML="";
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split("T")[0];
+    const btn=document.createElement("button");
+    btn.textContent=d.getDate();
+    btn.onclick=()=>selectDate(ds);
+    if(ds===data.activeDate) btn.style.fontWeight="bold";
     strip.appendChild(btn);
   }
 }
 
-function selectDate(date) {
-  closeObservation();
-  data.activeDate = date;
-  saveData(data);
+function selectDate(date){
+  closePanels();
+  data.activeDate=date;
+  save();
   render();
 }
 
-/* =========================
-   Tasks
-========================= */
+/* Tasks */
+function renderTasks(){
+  const list=document.getElementById("taskList");
+  list.innerHTML="";
+  const tasks=data.days[data.activeDate]||[];
+  const isToday=data.activeDate===today;
 
-function renderTasks() {
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
+  if(!tasks.length){ list.textContent="No tasks."; return; }
 
-  const tasks = data.days[data.activeDate] || [];
-  const isToday = data.activeDate === today;
+  tasks.forEach((t,i)=>{
+    const d=document.createElement("div");
+    d.className="task";
+    d.textContent=(t.completed?"✅ ":"❌ ")+t.text;
 
-  if (tasks.length === 0) {
-    list.textContent = "No tasks added on this day.";
-    return;
-  }
+    if(t.completed) d.classList.add("completed");
+    else if(!isToday) d.classList.add("missed");
+    else d.classList.add("incomplete-today");
 
-  tasks.forEach((task, index) => {
-    const item = document.createElement("div");
-    item.classList.add("task");
+    if(isToday){ d.classList.add("clickable"); d.onclick=()=>toggleTask(i);}
+    else d.classList.add("read-only");
 
-    item.textContent = (task.completed ? "✅ " : "❌ ") + task.text;
-
-    if (task.completed) item.classList.add("completed");
-    else if (!isToday) item.classList.add("missed");
-    else item.classList.add("incomplete-today");
-
-    if (isToday) {
-      item.classList.add("clickable");
-      item.onclick = () => toggleTask(index);
-    } else {
-      item.classList.add("read-only");
-    }
-
-    list.appendChild(item);
+    list.appendChild(d);
   });
 }
 
-function toggleTask(index) {
-  if (data.activeDate !== today) return;
-  const task = data.days[today][index];
-  task.completed = !task.completed;
-  saveData(data);
+function toggleTask(i){
+  const t=data.days[today][i];
+  t.completed=!t.completed;
+  save();
   renderTasks();
 }
 
-document.getElementById("addTaskBtn").onclick = () => {
-  if (data.activeDate !== today) return;
-
-  const input = document.getElementById("newTaskInput");
-  const text = input.value.trim();
-  if (!text) return;
-
-  data.days[today].push({
-    text,
-    completed: false,
-    difficulty: selectedDifficulty
-  });
-
-  input.value = "";
-  saveData(data);
-  renderTasks();
+document.getElementById("addTaskBtn").onclick=()=>{
+  if(data.activeDate!==today) return;
+  const inp=document.getElementById("newTaskInput");
+  if(!inp.value.trim()) return;
+  data.days[today].push({text:inp.value,completed:false,difficulty:selectedDifficulty});
+  inp.value="";
+  save(); renderTasks();
 };
 
-/* =========================
-   Phase 11 — Weekly Insight
-========================= */
-
-function generateWeeklyInsight() {
-  let completed = 0;
-  let missed = 0;
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-
-    const tasks = data.days[dateStr] || [];
-    tasks.forEach(t => {
-      const weight = t.difficulty || 1;
-      if (t.completed) completed += weight;
-      else missed += weight;
-    });
+/* Phase 13 — Continuous Incomplete Detection */
+function detectIncompleteStreak(){
+  let streak=0;
+  for(let i=0;i<5;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split("T")[0];
+    const tasks=data.days[ds]||[];
+    if(tasks.some(t=>!t.completed)) streak++;
+    else break;
   }
-
-  if (completed === 0 && missed === 0)
-    return "No activity recorded in the last 7 days.";
-
-  if (missed > completed)
-    return "More effort was missed than completed over the last 7 days.";
-
-  if (completed > missed * 2)
-    return "Strong consistency across the last 7 days.";
-
-  return "Effort and completion are balanced over the last 7 days.";
+  return streak>=3 ? "Some tasks are being missed repeatedly. Consider reducing difficulty or volume." : "";
 }
 
-/* =========================
-   Phase 12 — Difficulty Intelligence
-========================= */
-
-function generateDifficultyInsight() {
-  const stats = {
-    1: { done: 0, total: 0 },
-    2: { done: 0, total: 0 },
-    3: { done: 0, total: 0 }
-  };
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-
-    const tasks = data.days[dateStr] || [];
-    tasks.forEach(t => {
-      const diff = t.difficulty || 1;
-      stats[diff].total++;
-      if (t.completed) stats[diff].done++;
+/* Phase 14 — Statistics */
+function generateStats(days){
+  let done=0, total=0;
+  for(let i=0;i<days;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split("T")[0];
+    (data.days[ds]||[]).forEach(t=>{
+      total+=t.difficulty||1;
+      if(t.completed) done+=t.difficulty||1;
     });
   }
-
-  let worst = null;
-  let worstRate = 1;
-
-  for (let d = 1; d <= 3; d++) {
-    if (stats[d].total === 0) continue;
-    const rate = stats[d].done / stats[d].total;
-    if (rate < worstRate) {
-      worstRate = rate;
-      worst = d;
-    }
-  }
-
-  if (!worst) return "";
-
-  const name = worst === 1 ? "Easy" : worst === 2 ? "Medium" : "Hard";
-  return `${name} tasks show the lowest completion rate this week. Consider adjusting difficulty or workload.`;
+  return `Last ${days} days → Completed: ${done}, Missed: ${total-done}`;
 }
 
-/* =========================
-   Observation Mode
-========================= */
+/* Observation */
+document.getElementById("observeBtn").onclick=()=>{
+  closePanels();
+  document.getElementById("taskList").style.display="none";
+  document.getElementById("observationPanel").style.display="block";
 
-let observing = false;
-
-document.getElementById("observeBtn").onclick = () => {
-  observing ? closeObservation() : showObservation();
-};
-
-function showObservation() {
-  observing = true;
-
-  document.getElementById("taskList").style.display = "none";
-  document.getElementById("observationPanel").style.display = "block";
-
-  const tasks = data.days[data.activeDate] || [];
-  let completed = 0;
-  let missed = 0;
-
-  tasks.forEach(t => {
-    const weight = t.difficulty || 1;
-    if (t.completed) completed += weight;
-    else missed += weight;
+  const tasks=data.days[data.activeDate]||[];
+  let c=0,m=0;
+  tasks.forEach(t=>{
+    const w=t.difficulty||1;
+    t.completed?c+=w:m+=w;
   });
 
-  document.getElementById("obsSummary").textContent =
-    `Effort completed: ${completed}, Effort missed: ${missed}`;
+  document.getElementById("obsSummary").textContent=`Effort completed: ${c}, missed: ${m}`;
+  drawPie(c,m);
 
-  drawPieChart(completed, missed);
+  document.getElementById("obsInsight").textContent=
+    c===0&&m>0?"All effort missed today.":
+    c>0&&m===0?"Everything completed today.":
+    c>=m?"More completed than missed.":
+    "Missed outweighs completion.";
 
-  let insight = "";
-  if (completed === 0 && missed > 0)
-    insight = "All planned effort was missed today. Consider lowering task difficulty.";
-  else if (completed > 0 && missed === 0)
-    insight = "You completed everything you planned today. Effort balance looks good.";
-  else if (completed >= missed)
-    insight = "More effort was completed than missed. Consistency is forming.";
-  else
-    insight = "Missed effort outweighs completion. Review task difficulty or volume.";
+  document.getElementById("weeklyInsight").textContent=generateStats(7);
+  document.getElementById("difficultyInsight").textContent="";
+  document.getElementById("streakInsight").textContent=detectIncompleteStreak();
+};
 
-  document.getElementById("obsInsight").textContent = insight;
-  document.getElementById("weeklyInsight").textContent = generateWeeklyInsight();
-  document.getElementById("difficultyInsight").textContent = generateDifficultyInsight();
+document.getElementById("statsBtn").onclick=()=>{
+  closePanels();
+  document.getElementById("taskList").style.display="none";
+  document.getElementById("statsPanel").style.display="block";
+  document.getElementById("stat7").textContent=generateStats(7);
+  document.getElementById("stat14").textContent=generateStats(14);
+  document.getElementById("stat30").textContent=generateStats(30);
+};
+
+function closePanels(){
+  document.getElementById("taskList").style.display="block";
+  document.getElementById("observationPanel").style.display="none";
+  document.getElementById("statsPanel").style.display="none";
 }
 
-function closeObservation() {
-  observing = false;
-  document.getElementById("observationPanel").style.display = "none";
-  document.getElementById("taskList").style.display = "block";
+function drawPie(c,m){
+  const ctx=document.getElementById("obsChart").getContext("2d");
+  ctx.clearRect(0,0,200,200);
+  if(!c&&!m) return;
+  let s=0,t=c+m;
+  ctx.fillStyle="#2e7d32";
+  ctx.beginPath(); ctx.moveTo(100,100);
+  ctx.arc(100,100,80,s,s+(c/t)*Math.PI*2); ctx.fill();
+  s+=(c/t)*Math.PI*2;
+  ctx.fillStyle="#b71c1c";
+  ctx.beginPath(); ctx.moveTo(100,100);
+  ctx.arc(100,100,80,s,s+(m/t)*Math.PI*2); ctx.fill();
 }
 
-/* =========================
-   Pie Chart
-========================= */
+function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
 
-function drawPieChart(completed, missed) {
-  const canvas = document.getElementById("obsChart");
-  const ctx = canvas.getContext("2d");
-  const total = completed + missed;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (total === 0) return;
-
-  let start = 0;
-  const green = (completed / total) * Math.PI * 2;
-
-  ctx.fillStyle = "#2e7d32";
-  ctx.beginPath();
-  ctx.moveTo(100, 100);
-  ctx.arc(100, 100, 80, start, start + green);
-  ctx.fill();
-
-  start += green;
-
-  ctx.fillStyle = "#b71c1c";
-  ctx.beginPath();
-  ctx.moveTo(100, 100);
-  ctx.arc(100, 100, 80, start, start + (missed / total) * Math.PI * 2);
-  ctx.fill();
-}
-
-/* =========================
-   Render
-========================= */
-
-function render() {
+function render(){
   renderDateStrip();
   renderTasks();
 }
