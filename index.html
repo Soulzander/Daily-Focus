@@ -142,6 +142,8 @@ header, #dateStrip, #actionZone {
 <h3>Observation</h3>
 <p id="obsSummary"></p>
 <canvas id="obsChart" width="200" height="200"></canvas>
+<p id="obsInsight"></p>
+<p id="weeklyInsight"></p>
 </section>
 
 <section id="statsPanel">
@@ -271,8 +273,57 @@ function renderObservation(){
     `Effort completed: ${completed}, Effort missed: ${missed}`;
 
   drawPieChart(completed, missed);
+  let dailyInsight = "";
+
+if (completed === 0 && missed > 0) {
+  dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
+} else if (completed > 0 && missed === 0) {
+  dailyInsight = "You completed everything you planned today. Effort balance looks good.";
+} else if (completed >= missed) {
+  dailyInsight = "More effort was completed than missed. Consistency is forming.";
+} else {
+  dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
 }
 
+document.getElementById("obsInsight").textContent = dailyInsight;
+renderWeeklyInsight();
+}
+function renderWeeklyInsight() {
+  let streaks = {};
+
+  // Look back 7 days
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split("T")[0];
+    const tasks = data.days[ds] || [];
+
+    tasks.forEach(t => {
+      if (!streaks[t.text]) {
+        streaks[t.text] = { missed: 0, completed: 0 };
+      }
+      if (t.completed) streaks[t.text].completed++;
+      else streaks[t.text].missed++;
+    });
+  }
+
+  const repeatedMisses = Object.entries(streaks)
+    .filter(([_, v]) => v.missed >= 3 && v.missed > v.completed)
+    .map(([name]) => name);
+
+  let weeklyMessage = "";
+
+  if (repeatedMisses.length > 0) {
+    weeklyMessage =
+      `Tasks repeatedly missed this week: ${repeatedMisses.join(", ")}. Consider lowering their difficulty.`;
+  } else {
+    weeklyMessage =
+      "No recurring missed tasks detected this week. Your difficulty balance looks stable.";
+  }
+
+  document.getElementById("weeklyInsight").textContent = weeklyMessage;
+}
+  
 function drawPieChart(completed, missed){
   const c=document.getElementById("obsChart");
   const ctx=c.getContext("2d");
