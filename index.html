@@ -80,21 +80,33 @@ header, #dateStrip, #actionZone {
   display: none;
 }
 
-#obsInsight, #weeklyInsight, #difficultyInsight, #streakInsight {
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-#weeklyInsight { color: #666; }
-#difficultyInsight { font-style: italic; color: #555; }
-#streakInsight { color: #b71c1c; }
-
-/* Stats */
 .statBlock {
   margin-top: 12px;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   background: #f4f4f4;
+  cursor: pointer;
+}
+
+.statTitle {
+  font-weight: 600;
+}
+
+.statDetail {
+  margin-top: 8px;
+  font-size: 14px;
+  display: none;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.statRow:last-child {
+  border-bottom: none;
 }
 </style>
 </head>
@@ -130,17 +142,26 @@ header, #dateStrip, #actionZone {
 <h3>Observation</h3>
 <p id="obsSummary"></p>
 <canvas id="obsChart" width="200" height="200"></canvas>
-<p id="obsInsight"></p>
-<p id="weeklyInsight"></p>
-<p id="difficultyInsight"></p>
-<p id="streakInsight"></p>
 </section>
 
 <section id="statsPanel">
 <h3>Statistics</h3>
-<div class="statBlock" id="stat7"></div>
-<div class="statBlock" id="stat14"></div>
-<div class="statBlock" id="stat30"></div>
+
+<div class="statBlock" onclick="toggleStatDetail(7)">
+  <div class="statTitle" id="stat7Title"></div>
+  <div class="statDetail" id="stat7Detail"></div>
+</div>
+
+<div class="statBlock" onclick="toggleStatDetail(14)">
+  <div class="statTitle" id="stat14Title"></div>
+  <div class="statDetail" id="stat14Detail"></div>
+</div>
+
+<div class="statBlock" onclick="toggleStatDetail(30)">
+  <div class="statTitle" id="stat30Title"></div>
+  <div class="statDetail" id="stat30Detail"></div>
+</div>
+
 </section>
 
 <script>
@@ -154,7 +175,7 @@ let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDat
 const today = getToday();
 data.activeDate = today;
 if (!data.days[today]) data.days[today] = [];
-localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+save();
 
 document.getElementById("fullDate").textContent = new Date(today).toDateString();
 
@@ -231,87 +252,71 @@ document.getElementById("addTaskBtn").onclick=()=>{
   save(); renderTasks();
 };
 
-/* Phase 13 — Continuous Incomplete Detection */
-function detectIncompleteStreak(){
-  let streak=0;
-  for(let i=0;i<5;i++){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    const ds=d.toISOString().split("T")[0];
-    const tasks=data.days[ds]||[];
-    if(tasks.some(t=>!t.completed)) streak++;
-    else break;
-  }
-  return streak>=3 ? "Some tasks are being missed repeatedly. Consider reducing difficulty or volume." : "";
+/* Statistics helpers */
+function getDaySummary(dateStr){
+  const tasks=data.days[dateStr]||[];
+  return {
+    assigned: tasks.length,
+    completed: tasks.filter(t=>t.completed).length
+  };
 }
 
-/* Phase 14 — Statistics */
-function generateStats(days){
-  let done=0, total=0;
+function buildStat(days){
+  let completed=0, assigned=0;
+  let detailHTML="";
+
   for(let i=0;i<days;i++){
     const d=new Date(); d.setDate(d.getDate()-i);
     const ds=d.toISOString().split("T")[0];
-    (data.days[ds]||[]).forEach(t=>{
-      total+=t.difficulty||1;
-      if(t.completed) done+=t.difficulty||1;
-    });
+    const summary=getDaySummary(ds);
+
+    assigned+=summary.assigned;
+    completed+=summary.completed;
+
+    const label=d.toDateString().slice(0,10);
+    detailHTML+=`
+      <div class="statRow">
+        <span>${label}</span>
+        <span>${summary.completed} / ${summary.assigned}</span>
+      </div>`;
   }
-  return `Last ${days} days → Completed: ${done}, Missed: ${total-done}`;
+
+  return {
+    title:`Last ${days} days → Completed ${completed} / Assigned ${assigned}`,
+    detail: detailHTML
+  };
 }
 
-/* Observation */
-document.getElementById("observeBtn").onclick=()=>{
-  closePanels();
-  document.getElementById("taskList").style.display="none";
-  document.getElementById("observationPanel").style.display="block";
+/* Toggle expand */
+function toggleStatDetail(days){
+  const detail=document.getElementById(`stat${days}Detail`);
+  detail.style.display = detail.style.display==="block" ? "none" : "block";
+}
 
-  const tasks=data.days[data.activeDate]||[];
-  let c=0,m=0;
-  tasks.forEach(t=>{
-    const w=t.difficulty||1;
-    t.completed?c+=w:m+=w;
-  });
-
-  document.getElementById("obsSummary").textContent=`Effort completed: ${c}, missed: ${m}`;
-  drawPie(c,m);
-
-  document.getElementById("obsInsight").textContent=
-    c===0&&m>0?"All effort missed today.":
-    c>0&&m===0?"Everything completed today.":
-    c>=m?"More completed than missed.":
-    "Missed outweighs completion.";
-
-  document.getElementById("weeklyInsight").textContent=generateStats(7);
-  document.getElementById("difficultyInsight").textContent="";
-  document.getElementById("streakInsight").textContent=detectIncompleteStreak();
-};
-
+/* Panels */
 document.getElementById("statsBtn").onclick=()=>{
   closePanels();
   document.getElementById("taskList").style.display="none";
   document.getElementById("statsPanel").style.display="block";
-  document.getElementById("stat7").textContent=generateStats(7);
-  document.getElementById("stat14").textContent=generateStats(14);
-  document.getElementById("stat30").textContent=generateStats(30);
+
+  [7,14,30].forEach(d=>{
+    const res=buildStat(d);
+    document.getElementById(`stat${d}Title`).textContent=res.title;
+    document.getElementById(`stat${d}Detail`).innerHTML=res.detail;
+  });
 };
 
+document.getElementById("observeBtn").onclick=()=>{
+  closePanels();
+  document.getElementById("taskList").style.display="none";
+  document.getElementById("observationPanel").style.display="block";
+};
+
+/* Utilities */
 function closePanels(){
   document.getElementById("taskList").style.display="block";
   document.getElementById("observationPanel").style.display="none";
   document.getElementById("statsPanel").style.display="none";
-}
-
-function drawPie(c,m){
-  const ctx=document.getElementById("obsChart").getContext("2d");
-  ctx.clearRect(0,0,200,200);
-  if(!c&&!m) return;
-  let s=0,t=c+m;
-  ctx.fillStyle="#2e7d32";
-  ctx.beginPath(); ctx.moveTo(100,100);
-  ctx.arc(100,100,80,s,s+(c/t)*Math.PI*2); ctx.fill();
-  s+=(c/t)*Math.PI*2;
-  ctx.fillStyle="#b71c1c";
-  ctx.beginPath(); ctx.moveTo(100,100);
-  ctx.arc(100,100,80,s,s+(m/t)*Math.PI*2); ctx.fill();
 }
 
 function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
