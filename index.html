@@ -247,72 +247,102 @@ document.getElementById("addTaskBtn").onclick=()=>{
   if(data.activeDate!==today) return;
   const inp=document.getElementById("newTaskInput");
   if(!inp.value.trim()) return;
-  data.days[today].push({text:inp.value,completed:false,difficulty:selectedDifficulty});
+  data.days[today].push({
+    text:inp.value,
+    completed:false,
+    difficulty:selectedDifficulty
+  });
   inp.value="";
   save(); renderTasks();
 };
 
+/* Observation */
+function renderObservation(){
+  const tasks=data.days[data.activeDate]||[];
+  let completed=0, missed=0;
+
+  tasks.forEach(t=>{
+    const w=t.difficulty||1;
+    if(t.completed) completed+=w;
+    else missed+=w;
+  });
+
+  document.getElementById("obsSummary").textContent =
+    `Effort completed: ${completed}, Effort missed: ${missed}`;
+
+  drawPieChart(completed, missed);
+}
+
+function drawPieChart(completed, missed){
+  const c=document.getElementById("obsChart");
+  const ctx=c.getContext("2d");
+  const total=completed+missed;
+  ctx.clearRect(0,0,c.width,c.height);
+  if(!total) return;
+
+  let start=0;
+  const g=(completed/total)*Math.PI*2;
+  ctx.fillStyle="#2e7d32";
+  ctx.beginPath();
+  ctx.moveTo(100,100);
+  ctx.arc(100,100,80,start,start+g);
+  ctx.fill();
+
+  start+=g;
+  const r=(missed/total)*Math.PI*2;
+  ctx.fillStyle="#b71c1c";
+  ctx.beginPath();
+  ctx.moveTo(100,100);
+  ctx.arc(100,100,80,start,start+r);
+  ctx.fill();
+}
+
 /* Statistics helpers */
 function getDaySummary(dateStr){
-  const tasks=data.days[dateStr]||[];
-  return {
-    assigned: tasks.length,
-    completed: tasks.filter(t=>t.completed).length
-  };
+  const t=data.days[dateStr]||[];
+  return { assigned:t.length, completed:t.filter(x=>x.completed).length };
 }
 
 function buildStat(days){
-  let completed=0, assigned=0;
-  let detailHTML="";
-
+  let completed=0, assigned=0, html="";
   for(let i=0;i<days;i++){
     const d=new Date(); d.setDate(d.getDate()-i);
     const ds=d.toISOString().split("T")[0];
-    const summary=getDaySummary(ds);
-
-    assigned+=summary.assigned;
-    completed+=summary.completed;
-
-    const label=d.toDateString().slice(0,10);
-    detailHTML+=`
-      <div class="statRow">
-        <span>${label}</span>
-        <span>${summary.completed} / ${summary.assigned}</span>
-      </div>`;
+    const s=getDaySummary(ds);
+    assigned+=s.assigned;
+    completed+=s.completed;
+    html+=`<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
-
   return {
     title:`Last ${days} days → Completed ${completed} / Assigned ${assigned}`,
-    detail: detailHTML
+    detail:html
   };
 }
 
-/* Toggle expand */
-function toggleStatDetail(days){
-  const detail=document.getElementById(`stat${days}Detail`);
-  detail.style.display = detail.style.display==="block" ? "none" : "block";
+function toggleStatDetail(d){
+  const el=document.getElementById(`stat${d}Detail`);
+  el.style.display=el.style.display==="block"?"none":"block";
 }
 
 /* Panels */
-document.getElementById("statsBtn").onclick=()=>{
-  closePanels();
-  document.getElementById("taskList").style.display="none";
-  document.getElementById("statsPanel").style.display="block";
-
-  [7,14,30].forEach(d=>{
-    const res=buildStat(d);
-    document.getElementById(`stat${d}Title`).textContent=res.title;
-    document.getElementById(`stat${d}Detail`).innerHTML=res.detail;
-  });
-};
-
 document.getElementById("observeBtn").onclick=()=>{
   closePanels();
   document.getElementById("taskList").style.display="none";
   document.getElementById("observationPanel").style.display="block";
+  renderObservation();
 };
 
-/* Utilities */
+document.getElementById("statsBtn").onclick=()=>{
+  closePanels();
+  document.getElementById("taskList").style.display="none";
+  document.getElementById("statsPanel").style.display="block";
+  [7,14,30].forEach(d=>{
+    const r=buildStat(d);
+    document.getElementById(`stat${d}Title`).textContent=r.title;
+    document.getElementById(`stat${d}Detail`).innerHTML=r.detail;
+  });
+};
+
 function closePanels(){
   document.getElementById("taskList").style.display="block";
   document.getElementById("observationPanel").style.display="none";
