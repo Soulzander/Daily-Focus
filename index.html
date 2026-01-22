@@ -259,6 +259,16 @@ document.getElementById("addTaskBtn").onclick=()=>{
 };
 
 /* Observation */
+function shouldShowBehaviorInsight() {
+  const recentDates = getRecentDates(7);
+  let taskCount = 0;
+
+  recentDates.forEach(date => {
+    taskCount += (data.days[date] || []).length;
+  });
+
+  return recentDates.length >= 3 && taskCount >= 5;
+}
 function renderObservation(){
   const tasks=data.days[data.activeDate]||[];
   let completed=0, missed=0;
@@ -286,8 +296,13 @@ if (completed === 0 && missed > 0) {
 }
 
 document.getElementById("obsInsight").textContent = dailyInsight;
-renderWeeklyInsight();
+if (shouldShowBehaviorInsight()) {
+  const behaviorMessage = getBehaviorInsight();
+  document.getElementById("weeklyInsight").textContent = behaviorMessage;
+} else {
+  document.getElementById("weeklyInsight").textContent = "";
 }
+
 function renderWeeklyInsight() {
   let streaks = {};
 
