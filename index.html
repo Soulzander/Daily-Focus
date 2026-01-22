@@ -313,6 +313,42 @@ function analyzeBehavior() {
 
   return "";
 }
+const INSIGHT_KEY = "df_last_insight";
+
+function canShowInsight(message) {
+  if (!message) return false;
+
+  const last = JSON.parse(localStorage.getItem(INSIGHT_KEY));
+  const now = Date.now();
+
+  if (!last) return true;
+
+  const sameMessage = last.message === message;
+  const withinCooldown = now - last.time < 48 * 60 * 60 * 1000;
+
+  return !(sameMessage && withinCooldown);
+}
+
+function saveInsight(message) {
+  localStorage.setItem(
+    INSIGHT_KEY,
+    JSON.stringify({ message, time: Date.now() })
+  );
+}
+
+function evaluateFinalInsight() {
+  // priority order (locked in Phase 16)
+  const behaviorMessage = analyzeBehavior(); // from Phase 15.8
+
+  if (!behaviorMessage) return "";
+
+  if (canShowInsight(behaviorMessage)) {
+    saveInsight(behaviorMessage);
+    return behaviorMessage;
+  }
+
+  return "";
+}
 function renderObservation(){
   const tasks=data.days[data.activeDate]||[];
   let completed=0, missed=0;
@@ -340,12 +376,8 @@ if (completed === 0 && missed > 0) {
 }
 
 document.getElementById("obsInsight").textContent = dailyInsight;
-if (shouldShowBehaviorInsight()) {
-  const behaviorMessage = getBehaviorInsight();
-  document.getElementById("weeklyInsight").textContent = behaviorMessage;
-} else {
-  document.getElementById("weeklyInsight").textContent = "";
-}
+const finalInsight = evaluateFinalInsight();
+document.getElementById("weeklyInsight").textContent = finalInsight;
 }
 
 function renderWeeklyInsight() {
