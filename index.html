@@ -269,6 +269,50 @@ function shouldShowBehaviorInsight() {
 
   return recentDates.length >= 3 && taskCount >= 5;
 }
+function getRecentDates(days) {
+  const dates = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+  return dates;
+}
+
+function analyzeBehavior() {
+  const dates = getRecentDates(7);
+  let assigned = 0, completed = 0;
+  const taskStats = {};
+
+  dates.forEach(date => {
+    (data.days[date] || []).forEach(t => {
+      const w = t.difficulty || 1;
+      assigned += w;
+      if (t.completed) completed += w;
+
+      if (!taskStats[t.text]) {
+        taskStats[t.text] = { completed: 0, missed: 0 };
+      }
+      t.completed ? taskStats[t.text].completed++ : taskStats[t.text].missed++;
+    });
+  });
+
+  if (assigned >= 5 && completed / assigned < 0.5) {
+    return "You seem to be taking on more than you can sustain right now. Consider reducing task volume or difficulty.";
+  }
+
+  for (const [task, stat] of Object.entries(taskStats)) {
+    if (stat.missed >= 3 && stat.missed > stat.completed) {
+      return `“${task}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
+    }
+  }
+
+  if (assigned > 0 && completed / assigned >= 0.8) {
+    return "Your workload and completion feel well balanced lately.";
+  }
+
+  return "";
+}
 function renderObservation(){
   const tasks=data.days[data.activeDate]||[];
   let completed=0, missed=0;
