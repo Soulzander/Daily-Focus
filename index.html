@@ -468,11 +468,17 @@ function toggleStatDetail(d){
 }
 
 /* Panels */
-document.getElementById("observeBtn").onclick=()=>{
-  closePanels();
-  document.getElementById("taskList").style.display="none";
-  document.getElementById("observationPanel").style.display="block";
-  renderObservation();
+document.getElementById("observeBtn").onclick = () => {
+  const panel = document.getElementById("observationPanel");
+
+  if (panel.style.display === "block") {
+    closePanels();                 // closes Observation
+  } else {
+    closePanels();
+    document.getElementById("taskList").style.display = "none";
+    panel.style.display = "block"; // opens Observation
+    renderObservation();
+  }
 };
 
 document.getElementById("statsBtn").onclick=()=>{
