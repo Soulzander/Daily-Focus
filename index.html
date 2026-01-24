@@ -19,7 +19,33 @@ body {
 header, #dateStrip, #actionZone {
   padding: 8px;
 }
+#dateStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 6px;
+}
 
+#dateStrip::-webkit-scrollbar {
+  display: none;
+}
+
+.date-item {
+  min-width: 90px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.date-item.active {
+  background: #222;
+  color: white;
+}
+  
 #actionZone {
   border-bottom: 1px solid #ccc;
 }
@@ -194,17 +220,28 @@ document.querySelectorAll(".diff-btn").forEach(b=>{
 });
 
 /* Dates */
-function renderDateStrip(){
-  const strip=document.getElementById("dateStrip");
-  strip.innerHTML="";
-  for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    const ds=d.toISOString().split("T")[0];
-    const btn=document.createElement("button");
-    btn.textContent=d.getDate();
-    btn.onclick=()=>selectDate(ds);
-    if(ds===data.activeDate) btn.style.fontWeight="bold";
-    strip.appendChild(btn);
+function renderDateStrip() {
+  const strip = document.getElementById("dateStrip");
+  strip.innerHTML = "";
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split("T")[0];
+
+    const item = document.createElement("div");
+    item.className = "date-item";
+    item.textContent = d.toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short"
+    });
+
+    if (ds === data.activeDate) {
+      item.classList.add("active");
+    }
+
+    item.onclick = () => selectDate(ds);
+    strip.appendChild(item);
   }
 }
 
