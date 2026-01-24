@@ -16,9 +16,12 @@ body {
   height: 100vh;
 }
 
+/* Header + zones */
 header, #dateStrip, #actionZone {
   padding: 8px;
 }
+
+/* Date strip (scrollable last 7 days) */
 #dateStrip {
   display: flex;
   gap: 8px;
@@ -45,30 +48,92 @@ header, #dateStrip, #actionZone {
   background: #222;
   color: white;
 }
-  
+
+/* Action zone */
 #actionZone {
   border-bottom: 1px solid #ccc;
 }
 
+/* Task list */
 #taskList {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
 }
 
+/* Task row (MERGED + FIXED) */
 .task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px;
   margin-bottom: 6px;
   border-radius: 6px;
 }
 
-.task.completed { color: #2e7d32; opacity: 0.7; }
-.task.incomplete-today { color: #222; }
-.task.missed { color: #b71c1c; opacity: 0.8; }
-.task.clickable { cursor: pointer; }
-.task.read-only { cursor: default; }
+.task.completed {
+  color: #2e7d32;
+  opacity: 0.7;
+}
 
-/* Difficulty */
+.task.incomplete-today {
+  color: #222;
+}
+
+.task.missed {
+  color: #b71c1c;
+  opacity: 0.8;
+}
+
+.task.clickable {
+  cursor: pointer;
+}
+
+.task.read-only {
+  cursor: default;
+}
+
+/* Task checkbox */
+.task-check {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.task.completed .task-check {
+  color: #2e7d32;
+}
+
+/* Task text */
+.task-text {
+  flex: 1;
+}
+
+/* Difficulty badge */
+.diff-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
+}
+
+/* Difficulty colors (temporary — Liquid Glass later) */
+.diff-1 { background: #7acb8a; color: #103d1f; }  /* Easy */
+.diff-2 { background: #29b6f6; color: #043a55; }  /* Medium */
+.diff-3 { background: #ef5350; color: #4a0b0b; }  /* Hard */
+
+/* Add task input */
+#newTaskInput {
+  width: 100%;
+  height: 56px;
+  font-size: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Difficulty selector */
 #difficultySelector {
   display: flex;
   gap: 6px;
@@ -103,11 +168,13 @@ header, #dateStrip, #actionZone {
 }
 
 /* Panels */
-#observationPanel, #statsPanel {
+#observationPanel,
+#statsPanel {
   padding: 8px;
   display: none;
 }
 
+/* Stats */
 .statBlock {
   margin-top: 12px;
   padding: 10px;
@@ -137,47 +204,6 @@ header, #dateStrip, #actionZone {
   border-bottom: none;
 }
 
-#newTaskInput {
-  width: 100%;
-  height: 56px;
-  font-size: 16px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-.task {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.diff-badge {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-  font-size: 14px;
-}
-
-/* Difficulty colors (temporary, liquid glass later) */
-.diff-1 { background: #7acb8a; color: #103d1f; }   /* Easy */
-.diff-2 { background: #29b6f6; color: #043a55; }   /* Medium */
-.diff-3 { background: #ef5350; color: #4a0b0b; }   /* Hard */
-
-.task-check {
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.task.completed .task-check {
-  color: #2e7d32;
-}
-
-.task-text {
-  flex: 1;
-}
-  
 </style>
 </head>
 
