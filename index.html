@@ -340,6 +340,7 @@ badge.className = `diff-badge diff-${t.difficulty}`;
 badge.textContent =
   t.difficulty === 1 ? "Easy" :
   t.difficulty === 2 ? "Medium" : "Hard";
+  d.append(checkbox, label, badge);
 const checkbox = document.createElement("span");
 checkbox.className = "task-check";
 checkbox.textContent = t.completed ? "☑" : "☐";
