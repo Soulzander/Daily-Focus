@@ -136,6 +136,16 @@ header, #dateStrip, #actionZone {
 .statRow:last-child {
   border-bottom: none;
 }
+
+#newTaskInput {
+  width: 100%;
+  height: 56px;
+  font-size: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
 </style>
 </head>
 
@@ -150,7 +160,6 @@ header, #dateStrip, #actionZone {
 
 <section id="actionZone">
 <input id="newTaskInput" placeholder="Add a task for today">
-
 <div id="difficultySelector">
 <button class="diff-btn active" data-diff="1">Easy</button>
 <button class="diff-btn" data-diff="2">Medium</button>
