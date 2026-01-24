@@ -318,11 +318,6 @@ const checkbox = document.createElement("span");
 checkbox.className = "task-check";
 checkbox.textContent = t.completed ? "☑" : "☐";
 
-const label = document.createElement("span");
-label.className = "task-text";
-label.textContent = t.text;
-d.append(checkbox, label, badge);
-
     if(t.completed) d.classList.add("completed");
     else if(!isToday) d.classList.add("missed");
     else d.classList.add("incomplete-today");
