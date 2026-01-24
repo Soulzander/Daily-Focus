@@ -146,6 +146,25 @@ header, #dateStrip, #actionZone {
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diff-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* Difficulty colors (temporary, liquid glass later) */
+.diff-1 { background: #7acb8a; color: #103d1f; }   /* Easy */
+.diff-2 { background: #29b6f6; color: #043a55; }   /* Medium */
+.diff-3 { background: #ef5350; color: #4a0b0b; }   /* Hard */
+  
 </style>
 </head>
 
@@ -273,11 +292,17 @@ function renderTasks(){
   tasks.forEach((t,i)=>{
     const d=document.createElement("div");
     d.className="task";
-    const diffMap = { 1: "🟢 Easy", 2: "🟡 Medium", 3: "🔴 Hard" };
-d.textContent =
-  (t.completed ? "✅ " : "❌ ") +
-  `[${diffMap[t.difficulty]}] ` +
-  t.text;
+    const label = document.createElement("span");
+label.className = "task-text";
+label.textContent = t.text;
+
+const badge = document.createElement("span");
+badge.className = `diff-badge diff-${t.difficulty}`;
+badge.textContent =
+  t.difficulty === 1 ? "Easy" :
+  t.difficulty === 2 ? "Medium" : "Hard";
+
+d.append(label, badge);
 
     if(t.completed) d.classList.add("completed");
     else if(!isToday) d.classList.add("missed");
