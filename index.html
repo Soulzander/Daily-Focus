@@ -71,9 +71,14 @@ header, #dateStrip, #actionZone {
   border-radius: 6px;
 }
 
+/* Task text color follows difficulty */
+.task.diff-1 .task-text { color: #103d1f; }  /* Easy */
+.task.diff-2 .task-text { color: #043a55; }  /* Medium */
+.task.diff-3 .task-text { color: #4a0b0b; }  /* Hard */
+
+/* Completed tasks keep color but slightly faded */
 .task.completed {
-  color: #2e7d32;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 .task.incomplete-today {
@@ -103,9 +108,10 @@ header, #dateStrip, #actionZone {
   color: #2e7d32;
 }
 
-/* Task text */
 .task-text {
   flex: 1;
+  font-family: "Copperplate", "Copperplate Gothic Light", serif;
+  font-weight: 500;
 }
 
 /* Difficulty badge */
@@ -345,6 +351,8 @@ function renderTasks(){
   badge.textContent =
     t.difficulty === 1 ? "Easy" :
     t.difficulty === 2 ? "Medium" : "Hard";
+
+  d.classList.add(`diff-${t.difficulty}`);
 
   // ✅ append AFTER everything is created
   d.append(checkbox, label, badge);
