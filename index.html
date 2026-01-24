@@ -328,32 +328,40 @@ function renderTasks(){
 
   if(!tasks.length){ list.textContent="No tasks."; return; }
 
-  tasks.forEach((t,i)=>{
-    const d=document.createElement("div");
-    d.className="task";
-    const label = document.createElement("span");
-label.className = "task-text";
-label.textContent = t.text;
+  tasks.forEach((t, i) => {
+  const d = document.createElement("div");
+  d.className = "task";
 
-const badge = document.createElement("span");
-badge.className = `diff-badge diff-${t.difficulty}`;
-badge.textContent =
-  t.difficulty === 1 ? "Easy" :
-  t.difficulty === 2 ? "Medium" : "Hard";
+  const checkbox = document.createElement("span");
+  checkbox.className = "task-check";
+  checkbox.textContent = t.completed ? "☑" : "☐";
+
+  const label = document.createElement("span");
+  label.className = "task-text";
+  label.textContent = t.text;
+
+  const badge = document.createElement("span");
+  badge.className = `diff-badge diff-${t.difficulty}`;
+  badge.textContent =
+    t.difficulty === 1 ? "Easy" :
+    t.difficulty === 2 ? "Medium" : "Hard";
+
+  // ✅ append AFTER everything is created
   d.append(checkbox, label, badge);
-const checkbox = document.createElement("span");
-checkbox.className = "task-check";
-checkbox.textContent = t.completed ? "☑" : "☐";
 
-    if(t.completed) d.classList.add("completed");
-    else if(!isToday) d.classList.add("missed");
-    else d.classList.add("incomplete-today");
+  if (t.completed) d.classList.add("completed");
+  else if (!isToday) d.classList.add("missed");
+  else d.classList.add("incomplete-today");
 
-    if(isToday){ d.classList.add("clickable"); d.onclick=()=>toggleTask(i);}
-    else d.classList.add("read-only");
+  if (isToday) {
+    d.classList.add("clickable");
+    d.onclick = () => toggleTask(i);
+  } else {
+    d.classList.add("read-only");
+  }
 
-    list.appendChild(d);
-  });
+  list.appendChild(d);
+});
 }
 
 function toggleTask(i){
