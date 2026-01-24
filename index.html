@@ -273,7 +273,11 @@ function renderTasks(){
   tasks.forEach((t,i)=>{
     const d=document.createElement("div");
     d.className="task";
-    d.textContent=(t.completed?"✅ ":"❌ ")+t.text;
+    const diffMap = { 1: "🟢 Easy", 2: "🟡 Medium", 3: "🔴 Hard" };
+d.textContent =
+  (t.completed ? "✅ " : "❌ ") +
+  `[${diffMap[t.difficulty]}] ` +
+  t.text;
 
     if(t.completed) d.classList.add("completed");
     else if(!isToday) d.classList.add("missed");
