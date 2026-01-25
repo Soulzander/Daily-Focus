@@ -61,14 +61,65 @@ header, #dateStrip, #actionZone {
   padding: 8px;
 }
 
+/* ===== TASK ROW ===== */
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+}
+
+/* ===== TASK TEXT ===== */
+.task-text {
+  flex: 1;
+  font-family: "Copperplate", "Copperplate Gothic Light", serif;
+  font-weight: 500;
+}
+
+/* Bright task text colors by difficulty */
+.task.diff-1 .task-text { color: #2E7D32; } /* Green */
+.task.diff-2 .task-text { color: #0277BD; } /* Blue */
+.task.diff-3 .task-text { color: #C62828; } /* Red */
+
+/* ===== CHECKBOX ===== */
+.task-check {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.task.completed .task-check {
+  color: #2E7D32;
+}
+
+/* ===== COMPLETED STATE ===== */
+.task.completed {
+  opacity: 0.75;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+/* Glow by difficulty */
+.task.completed.diff-1 {
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.45);
+}
+.task.completed.diff-2 {
+  box-shadow: 0 0 12px rgba(3, 169, 244, 0.45);
+}
+.task.completed.diff-3 {
+  box-shadow: 0 0 12px rgba(244, 67, 54, 0.45);
+}
+
+/* ===== LIQUID GLASS BADGE ===== */
 .diff-badge {
   margin-left: auto;
 
-  padding: 2px 8px;          
-  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
   font-weight: 600;
-  font-size: 12px;           
   line-height: 1.2;
+
+  border-radius: 999px;
 
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(8px);
@@ -76,150 +127,16 @@ header, #dateStrip, #actionZone {
 
   border: 1px solid rgba(255, 255, 255, 0.35);
 }
-  
-/* Task text font + difficulty color */
-.task-text {
-  flex: 1;
-  font-family: "Copperplate", "Copperplate Gothic Light", serif;
-}
-  
-/* Bright task text colors by difficulty */
-.task.diff-1 .task-text {
-  color: #2E7D32;
-}
 
-.task.diff-2 .task-text {
-  color: #0277BD;   /* Bright Blue */
-}
+/* Badge tint only */
+.diff-badge.diff-1 { color: #0b2e13; }
+.diff-badge.diff-2 { color: #012a3a; }
+.diff-badge.diff-3 { color: #3a0503; }
 
-.task.diff-3 .task-text {
-  color: #C62828;   /* Bright Red */
-}
-  
-/* Completed tasks keep color but slightly faded */
-.task.completed {
-  opacity: 0.5;
-}
-
-/* Glow on completed task — difficulty aware */
-.task.completed.diff-1 {
-  box-shadow:
-    0 0 0 1px rgba(122, 203, 138, 0.35),
-    0 0 14px rgba(122, 203, 138, 0.45);
-}
-
-.task.completed.diff-2 {
-  box-shadow:
-    0 0 0 1px rgba(41, 182, 246, 0.35),
-    0 0 14px rgba(41, 182, 246, 0.45);
-}
-
-.task.completed.diff-3 {
-  box-shadow:
-    0 0 0 1px rgba(239, 83, 80, 0.35),
-    0 0 14px rgba(239, 83, 80, 0.45);
-}
-
-.task.completed {
-  opacity: 0.75;
-  transition: box-shadow 0.3s ease, opacity 0.3s ease;
-}
-
-.task.incomplete-today {
-  color: #222;
-}
-
-.task.missed {
-  color: #b71c1c;
-  opacity: 0.8;
-}
-
-.task.clickable {
-  cursor: pointer;
-}
-
-.task.read-only {
-  cursor: default;
-}
-
-/* Task checkbox */
-.task-check {
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.task.completed .task-check {
-  color: #2e7d32;
-}
-
-.task.completed .task-text {
-  filter: brightness(0.9);
-}
-
-.task-text {
-  flex: 1;
-  font-family: "Copperplate", "Copperplate Gothic Light", serif;
-  font-weight: 500;
-}
-
-/* Difficulty badge */
-.diff-badge {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-}
-.diff-badge {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-
-/* Brighter difficulty badge colors */
-.diff-badge.diff-1 {
-  background: #4CAF50;   /* Bright Green */
-  color: #0b2e13;
-}
-
-.diff-badge.diff-2 {
-  background: #03A9F4;   /* Bright Blue */
-  color: #012a3a;
-}
-
-.diff-badge.diff-3 {
-  background: #F44336;   /* Bright Red */
-  color: #3a0503;
-}
-  
-/* Add task input */
-#newTaskInput {
-  width: 100%;
-  height: 56px;
-  font-size: 16px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
-/* Difficulty selector */
-#difficultySelector {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.diff-btn {
-  flex: 1;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #f5f5f5;
-}
-
-.diff-btn.active {
-  background: #222;
-  color: white;
-}
+/* ===== STATES ===== */
+.task.clickable { cursor: pointer; }
+.task.read-only { cursor: default; }
+.task.missed { opacity: 0.8; }
 
 /* Action buttons */
 #actionButtons {
