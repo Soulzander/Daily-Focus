@@ -155,15 +155,17 @@ header, #dateStrip, #actionZone {
   font-weight: 500;
 }
 
-/* Difficulty badge */
 .diff-badge {
-  padding: 4px 10px;
-  border-radius: 8px;
+  margin-left: auto;        /* push badge to right */
+  padding: 2px 8px;         /* compact size */
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 1.2;
+
   font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-}
-.diff-badge {
+
+  background: #eee;         /* default fallback */
   box-shadow: 0 1px 3px rgba(0,0,0,0.12);
 }
 
@@ -395,7 +397,7 @@ function renderTasks(){
 
   const checkbox = document.createElement("span");
   checkbox.className = "task-check";
-  checkbox.textContent = t.completed ? "â" : "â";
+  checkbox.textContent = t.completed ? "[✓]" : "[ ]";
 
   const label = document.createElement("span");
   label.className = "task-text";
@@ -646,7 +648,7 @@ function buildStat(days){
     html+=`<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
   return {
-    title:`Last ${days} days â Completed ${completed} / Assigned ${assigned}`,
+    title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`,
     detail:html
   };
 }
