@@ -9,17 +9,31 @@
 
 <style>
 body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  /* Liquid Glass base (navy → purple) */
   background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05), transparent 45%),
+    radial-gradient(
+      circle at top left,
+      rgba(120, 140, 255, 0.25),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(160, 120, 255, 0.18),
+      transparent 50%
+    ),
     linear-gradient(
       160deg,
-      #0b0a08,
-      #1a120e 40%,
-      #0f0f14
+      #0f172a,
+      #1e1b4b 45%,
+      #020617
     );
 }
-
 /* Header + zones */
 header, #dateStrip, #actionZone {
   padding: 8px;
