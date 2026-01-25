@@ -61,15 +61,20 @@ header, #dateStrip, #actionZone {
   padding: 8px;
 }
 
-/* Task row (MERGED + FIXED) */
-.task {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
+/* Liquid Glass difficulty badge */
+.diff-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
+
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
+  
 /* Task text font + difficulty color */
 .task-text {
   flex: 1;
