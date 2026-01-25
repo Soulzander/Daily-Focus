@@ -94,6 +94,30 @@ header, #dateStrip, #actionZone {
   opacity: 0.5;
 }
 
+/* Glow on completed task — difficulty aware */
+.task.completed.diff-1 {
+  box-shadow:
+    0 0 0 1px rgba(122, 203, 138, 0.35),
+    0 0 14px rgba(122, 203, 138, 0.45);
+}
+
+.task.completed.diff-2 {
+  box-shadow:
+    0 0 0 1px rgba(41, 182, 246, 0.35),
+    0 0 14px rgba(41, 182, 246, 0.45);
+}
+
+.task.completed.diff-3 {
+  box-shadow:
+    0 0 0 1px rgba(239, 83, 80, 0.35),
+    0 0 14px rgba(239, 83, 80, 0.45);
+}
+
+.task.completed {
+  opacity: 0.75;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
 .task.incomplete-today {
   color: #222;
 }
