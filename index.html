@@ -15,9 +15,13 @@ body {
   flex-direction: column;
   height: 100vh;
 
-  /* NEW – subtle glass-friendly background */
   background:
-    radial-gradient(circle at top left, #f2f6ff, #ffffff 60%);
+    linear-gradient(
+      135deg,
+      rgba(126, 151, 255, 0.55) 0%,   /* top-left strong */
+      rgba(126, 151, 255, 0.35) 40%,  /* mid fade */
+      rgba(255, 255, 255, 0.15) 100%  /* bottom-right soft */
+    );
 }
   
 /* Header + zones */
