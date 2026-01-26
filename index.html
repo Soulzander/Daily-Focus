@@ -287,20 +287,10 @@ header, #dateStrip, #actionZone {
 /* Task rows */
 .task {
   background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 4px 10px rgba(0, 0, 0, 0.06);
-
-  transition:
-    background 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.2s ease;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
-
+  
 /* Input field */
 #newTaskInput {
   background: rgba(255, 255, 255, 0.55);
@@ -372,15 +362,17 @@ header, #dateStrip, #actionZone {
 }
 
 /* Lift on interaction */
+/* Press feedback — works everywhere */
 .task.clickable:active {
-  transform: translateY(1px);
+  background: rgba(255, 255, 255, 0.85);
 }
 
-/* Slight emphasis when hovered (desktop-safe) */
+/* Hover feedback — desktop only */
 @media (hover: hover) {
   .task.clickable:hover {
     background: rgba(255, 255, 255, 0.25);
   }
+}
 }
 /* Liquid Glass v2 — Task row visual layer only */
 .task {
