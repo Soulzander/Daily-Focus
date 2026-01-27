@@ -791,7 +791,18 @@ function closePanels(){
 
 function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
 
+function syncToday() {
+  const realToday = getToday();
+
+  if (data.activeDate !== realToday) {
+    data.activeDate = realToday;
+    if (!data.days[realToday]) data.days[realToday] = [];
+    save();
+  }
+}
+
 function render(){
+  syncToday();
   renderDateStrip();
   renderTasks();
 }
