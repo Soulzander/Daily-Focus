@@ -794,7 +794,11 @@ function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
 function syncToday() {
   const realToday = getToday();
 
-  if (data.activeDate !== realToday) {
+  // Only auto-sync if user is currently on today
+  if (data.activeDate === realToday) return;
+
+  // If stored activeDate is in the future or invalid, reset
+  if (!data.days[data.activeDate]) {
     data.activeDate = realToday;
     if (!data.days[realToday]) data.days[realToday] = [];
     save();
