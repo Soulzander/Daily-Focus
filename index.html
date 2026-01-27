@@ -801,6 +801,10 @@ function syncToday() {
   }
 }
 
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) render();
+});
+
 function render(){
   syncToday();
   renderDateStrip();
