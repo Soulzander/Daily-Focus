@@ -710,29 +710,44 @@ function renderWeeklyInsight() {
 function drawPieChart(completed, missed){
   const c=document.getElementById("obsChart");
   const ctx=c.getContext("2d");
-  const total=completed+missed;
-  ctx.clearRect(0,0,c.width,c.height);
-  if(!total) return;
+  const total = completed + missed;
+ctx.clearRect(0, 0, c.width, c.height);
+if (!total) return;
 
-  let start = 0;
+const GAP = 0.04; // slice separation
+let start = 0;
+
 const g = (completed / total) * Math.PI * 2;
-
 const completedColor = "rgba(46, 125, 50, 0.85)";
 const missedColor = "rgba(198, 40, 40, 0.85)";
 
+// Completed slice
 ctx.fillStyle = completedColor;
 ctx.beginPath();
 ctx.moveTo(100, 100);
-ctx.arc(100, 100, 80, start, start + g);
+ctx.arc(
+  100,
+  100,
+  80,
+  start + GAP / 2,
+  start + g - GAP / 2
+);
 ctx.fill();
 
 start += g;
 
+// Missed slice
 const r = (missed / total) * Math.PI * 2;
 ctx.fillStyle = missedColor;
 ctx.beginPath();
 ctx.moveTo(100, 100);
-ctx.arc(100, 100, 80, start, start + r);
+ctx.arc(
+  100,
+  100,
+  80,
+  start + GAP / 2,
+  start + r - GAP / 2
+);
 ctx.fill();
 }
 
