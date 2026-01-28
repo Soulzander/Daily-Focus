@@ -714,21 +714,26 @@ function drawPieChart(completed, missed){
   ctx.clearRect(0,0,c.width,c.height);
   if(!total) return;
 
-  let start=0;
-  const g=(completed/total)*Math.PI*2;
-  ctx.fillStyle="#2e7d32";
-  ctx.beginPath();
-  ctx.moveTo(100,100);
-  ctx.arc(100,100,80,start,start+g);
-  ctx.fill();
+  let start = 0;
+const g = (completed / total) * Math.PI * 2;
 
-  start+=g;
-  const r=(missed/total)*Math.PI*2;
-  ctx.fillStyle="#b71c1c";
-  ctx.beginPath();
-  ctx.moveTo(100,100);
-  ctx.arc(100,100,80,start,start+r);
-  ctx.fill();
+const completedColor = "rgba(46, 125, 50, 0.85)";
+const missedColor = "rgba(198, 40, 40, 0.85)";
+
+ctx.fillStyle = completedColor;
+ctx.beginPath();
+ctx.moveTo(100, 100);
+ctx.arc(100, 100, 80, start, start + g);
+ctx.fill();
+
+start += g;
+
+const r = (missed / total) * Math.PI * 2;
+ctx.fillStyle = missedColor;
+ctx.beginPath();
+ctx.moveTo(100, 100);
+ctx.arc(100, 100, 80, start, start + r);
+ctx.fill();
 }
 
 /* Statistics helpers */
