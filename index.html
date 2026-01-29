@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+/* ---------- layout & theme ---------- */
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
@@ -22,7 +23,7 @@ body {
     #1537b3 100%
   );
 }
-  
+
 /* Header + zones */
 header, #dateStrip, #actionZone {
   padding: 8px;
@@ -36,10 +37,7 @@ header, #dateStrip, #actionZone {
   white-space: nowrap;
   padding-bottom: 6px;
 }
-
-#dateStrip::-webkit-scrollbar {
-  display: none;
-}
+#dateStrip::-webkit-scrollbar { display: none; }
 
 .date-item {
   min-width: 90px;
@@ -50,7 +48,6 @@ header, #dateStrip, #actionZone {
   cursor: pointer;
   flex-shrink: 0;
 }
-
 .date-item.active {
   background: #222;
   color: white;
@@ -60,315 +57,86 @@ header, #dateStrip, #actionZone {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
   border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* content anchor: make it take remaining height and scroll */
+#contentAnchor {
+  flex: 1;
+  overflow: auto;
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  margin: 8px;
+  padding: 12px;
 }
 
 /* Task list */
 #taskList {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
+  width: 100%;
+  padding: 8px 0;
 }
 
-/* Task row (MERGED + FIXED) */
+/* Task row */
 .task {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   border-radius: 6px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.35);
 }
-/* Task text font + difficulty color */
-.task-text {
-  flex: 1;
-  font-family: "Copperplate", "Copperplate Gothic Light", serif;
-}
-  
-/* Bright task text colors by difficulty */
-.task.diff-1 .task-text {
-  color: #2E7D32;   /* Bright Green */
-}
+.task-text { flex: 1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
 
-.task.diff-2 .task-text {
-  color: #0277BD;   /* Bright Blue */
-}
+/* difficulty colours */
+.task.diff-1 .task-text { color: #2E7D32; }
+.task.diff-2 .task-text { color: #0277BD; }
+.task.diff-3 .task-text { color: #C62828; }
 
-.task.diff-3 .task-text {
-  color: #C62828;   /* Bright Red */
-}
-  
-/* Completed tasks keep color but slightly faded */
-.task.completed {
-  opacity: 0.5;
-}
+/* completed / missed / hover */
+.task.completed { opacity: 0.75; transition: box-shadow .3s, opacity .3s; }
+.task.incomplete-today { color: #222; }
+.task.missed { color: #b71c1c; opacity: 0.8; }
+.task.clickable { cursor: pointer; }
+.task.read-only { cursor: default; }
 
-/* Softer completed glow — calm & ambient */
-.task.completed.diff-1 {
-  box-shadow:
-    0 0 0 1px rgba(76, 175, 80, 0.25),
-    0 0 8px rgba(76, 175, 80, 0.35);
-}
-
-.task.completed.diff-2 {
-  box-shadow:
-    0 0 0 1px rgba(3, 169, 244, 0.25),
-    0 0 8px rgba(3, 169, 244, 0.35);
-}
-
-.task.completed.diff-3 {
-  box-shadow:
-    0 0 0 1px rgba(244, 67, 54, 0.25),
-    0 0 8px rgba(244, 67, 54, 0.35);
-}
-  
-.task.completed {
-  opacity: 0.75;
-  transition: box-shadow 0.3s ease, opacity 0.3s ease;
-}
-
-.task.incomplete-today {
-  color: #222;
-}
-
-.task.missed {
-  color: #b71c1c;
-  opacity: 0.8;
-}
-
-.task.clickable {
-  cursor: pointer;
-}
-
-.task.read-only {
-  cursor: default;
-}
-
-.task-check {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #2e7d32; /* green tick */
-}
-
-.task.completed .task-text {
-  filter: brightness(0.9);
-}
-
-.task-text {
-  flex: 1;
-  font-family: "Copperplate", "Copperplate Gothic Light", serif;
-  font-weight: 500;
-}
-
+.task-check { width:18px; height:18px; cursor:pointer; accent-color:#2e7d32; }
 .diff-badge {
-  margin-left: auto;        /* push badge to right */
-  padding: 2px 8px;         /* compact size */
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.2;
-
+  margin-left:auto; padding: 2px 8px; border-radius:999px; font-weight:600; font-size:12px; line-height:1.2;
   font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-
-  background: #eee;         /* default fallback */
+  background: rgba(255,255,255,0.55);
   box-shadow: 0 1px 3px rgba(0,0,0,0.12);
 }
+.diff-badge.diff-1 { background:#4CAF50; color:#0b2e13; }
+.diff-badge.diff-2 { background:#03A9F4; color:#012a3a; }
+.diff-badge.diff-3 { background:#F44336; color:#3a0503; }
 
-/* Brighter difficulty badge colors */
-.diff-badge.diff-1 {
-  background: #4CAF50;   /* Bright Green */
-  color: #0b2e13;
-}
-
-.diff-badge.diff-2 {
-  background: #03A9F4;   /* Bright Blue */
-  color: #012a3a;
-}
-
-.diff-badge.diff-3 {
-  background: #F44336;   /* Bright Red */
-  color: #3a0503;
-}
-  
-/* Add task input */
+/* input and controls */
 #newTaskInput {
-  width: 100%;
-  height: 56px;
-  font-size: 16px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+  width:100%; height:56px; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box;
+  background: rgba(255,255,255,0.85);
 }
+#difficultySelector { display:flex; gap:6px; margin-top:6px; }
+.diff-btn { flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; background: rgba(255,255,255,0.5); }
+.diff-btn.active { background: rgba(0,0,0,0.8); color:white; }
 
-/* Difficulty selector */
-#difficultySelector {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
+/* action buttons */
+#actionButtons { display:flex; gap:8px; margin-top:8px; }
+#actionButtons button { flex:1; height:48px; font-size:16px; border-radius:10px; background: rgba(255,255,255,0.5); }
+
+/* Panels - hidden by default so they don't show on first load */
+#observationPanel, #statsPanel { display: none; color: #0e1320; }
+
+/* stats card */
+.statBlock { margin-top:12px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.45); cursor:pointer; }
+.statRow { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #ddd; }
+.statRow:last-child { border-bottom:none; }
+
+/* small responsive tweaks */
+@media (min-width:900px){
+  #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
 }
-
-.diff-btn {
-  flex: 1;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #f5f5f5;
-}
-
-.diff-btn.active {
-  background: #222;
-  color: white;
-}
-
-/* Action buttons */
-#actionButtons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-#actionButtons button {
-  flex: 1;
-  height: 48px;
-  font-size: 16px;
-  border-radius: 10px;
-}
-
-/* Panels */
-#observationPanel,
-#statsPanel {
-  color: #0e1320;
-}
-
-/* Stats */
-.statBlock {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f4f4f4;
-  cursor: pointer;
-}
-
-.statTitle {
-  font-weight: 600;
-}
-
-.statDetail {
-  margin-top: 8px;
-  font-size: 14px;
-  display: none;
-}
-
-.statRow {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.statRow:last-child {
-  border-bottom: none;
-}
-
-/* ============================
-   FROST GLASS – PHASE 1
-   ============================ */
-
-/* Shared frost base */
-.frost {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-/* Task rows */
-/* Idle task — calm glass */
-.task {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-  
-/* Input field */
-#newTaskInput {
-  background: rgba(255, 255, 255, 0.85);
-}
-
-/* Date pills */
-.date-item {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.date-item.active {
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-}
-
-/* Action buttons */
-#actionButtons button {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-/* Difficulty selector buttons */
-.diff-btn {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(6px);
-}
-
-.diff-btn.active {
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-}
-
-/* Stats cards */
-.statBlock {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-/* Difficulty badge (keep small, frosted) */
-.diff-badge {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Press feedback — works everywhere */
-.task.clickable:active {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-/* Hover feedback — desktop only */
-@media (hover: hover) {
-  .task.clickable:hover {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
-}
-
-/* ===== Contrast Anchor Layer ===== */
-#contentAnchor {
-  background: rgba(255, 255, 255, 0.18); /* neutral light veil */
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border-radius: 18px;
-  margin: 8px;
-  padding: 6px;
-}
-
 </style>
 </head>
 
@@ -379,12 +147,11 @@ header, #dateStrip, #actionZone {
   <p id="fullDate"></p>
 </header>
 
-<section id="dateStrip"></section>
+<section id="dateStrip" aria-label="Date strip"></section>
 
 <section id="actionZone">
-  <input id="newTaskInput" placeholder="Add a task for today">
-
-  <div id="difficultySelector">
+  <input id="newTaskInput" placeholder="Add a task for today" aria-label="New task">
+  <div id="difficultySelector" role="tablist" aria-label="Difficulty">
     <button class="diff-btn active" data-diff="1">Easy</button>
     <button class="diff-btn" data-diff="2">Medium</button>
     <button class="diff-btn" data-diff="3">Hard</button>
@@ -397,19 +164,20 @@ header, #dateStrip, #actionZone {
   </div>
 </section>
 
+<!-- single content anchor (only one set of panels) -->
 <div id="contentAnchor">
 
-  <main id="taskList"></main>
+  <main id="taskList" aria-live="polite"></main>
 
-  <section id="observationPanel">
+  <section id="observationPanel" aria-hidden="true">
     <h3>Observation</h3>
     <p id="obsSummary"></p>
-    <canvas id="obsChart" width="200" height="200"></canvas>
+    <canvas id="obsChart" width="200" height="200" aria-label="Observation chart"></canvas>
     <p id="obsInsight"></p>
     <p id="weeklyInsight"></p>
   </section>
 
-  <section id="statsPanel">
+  <section id="statsPanel" aria-hidden="true">
     <h3>Statistics</h3>
 
     <div class="statBlock" onclick="toggleStatDetail(7)">
@@ -431,8 +199,7 @@ header, #dateStrip, #actionZone {
 
 </div>
 
-</body>
-
+<!-- script must be inside body and before closing body -->
 <script>
 const STORAGE_KEY = "daily-focus-data";
 
@@ -444,7 +211,7 @@ let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDat
 const today = getToday();
 data.activeDate = today;
 if (!data.days[today]) data.days[today] = [];
-save();
+save(); // function declaration is hoisted
 
 document.getElementById("fullDate").textContent = new Date(today).toDateString();
 
@@ -475,10 +242,7 @@ function renderDateStrip() {
       month: "short"
     });
 
-    if (ds === data.activeDate) {
-      item.classList.add("active");
-    }
-
+    if (ds === data.activeDate) item.classList.add("active");
     item.onclick = () => selectDate(ds);
     strip.appendChild(item);
   }
@@ -486,95 +250,94 @@ function renderDateStrip() {
 
 function selectDate(date){
   closePanels();
-  data.activeDate=date;
+  data.activeDate = date;
   save();
   render();
 }
 
 /* Tasks */
 function renderTasks(){
-  const list=document.getElementById("taskList");
-  list.innerHTML="";
-  const tasks=data.days[data.activeDate]||[];
-  const isToday=data.activeDate===today;
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+  const tasks = data.days[data.activeDate] || [];
+  const isToday = data.activeDate === today;
 
-  if(!tasks.length){ list.textContent="No tasks."; return; }
-
-  tasks.forEach((t, i) => {
-  const d = document.createElement("div");
-  d.className = "task";
-
-  const checkbox = document.createElement("input");
-checkbox.type = "checkbox";
-checkbox.className = "task-check";
-checkbox.checked = t.completed;
-checkbox.disabled = !isToday;
-
-checkbox.onclick = (e) => {
-  e.stopPropagation(); // prevent double toggle
-  toggleTask(i);
-};
-
-  const label = document.createElement("span");
-  label.className = "task-text";
-  label.textContent = t.text;
-
-  const badge = document.createElement("span");
-  badge.className = `diff-badge diff-${t.difficulty}`;
-  badge.textContent =
-    t.difficulty === 1 ? "Easy" :
-    t.difficulty === 2 ? "Medium" : "Hard";
-
-  d.classList.add(`diff-${t.difficulty}`);
-
-  d.append(checkbox, label, badge);
-
-  if (t.completed) d.classList.add("completed");
-  else if (!isToday) d.classList.add("missed");
-  else d.classList.add("incomplete-today");
-
-  if (isToday) {
-    d.classList.add("clickable");
-    d.onclick = () => toggleTask(i);
-  } else {
-    d.classList.add("read-only");
+  if(!tasks.length){
+    const p = document.createElement("div");
+    p.textContent = "No tasks.";
+    p.style.opacity = "0.8";
+    list.appendChild(p);
+    return;
   }
 
-  list.appendChild(d);
-});
+  tasks.forEach((t, i) => {
+    const row = document.createElement("div");
+    row.className = "task";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "task-check";
+    checkbox.checked = !!t.completed;
+    checkbox.disabled = !isToday;
+
+    checkbox.onclick = (e) => {
+      e.stopPropagation();
+      toggleTask(i);
+    };
+
+    const label = document.createElement("span");
+    label.className = "task-text";
+    label.textContent = t.text;
+
+    const badge = document.createElement("span");
+    badge.className = `diff-badge diff-${t.difficulty}`;
+    badge.textContent =
+      t.difficulty === 1 ? "Easy" :
+      t.difficulty === 2 ? "Medium" : "Hard";
+
+    row.classList.add(`diff-${t.difficulty}`);
+    row.append(checkbox, label, badge);
+
+    if (t.completed) row.classList.add("completed");
+    else if (!isToday) row.classList.add("missed");
+    else row.classList.add("incomplete-today");
+
+    if (isToday) {
+      row.classList.add("clickable");
+      row.onclick = () => toggleTask(i);
+    } else {
+      row.classList.add("read-only");
+    }
+
+    list.appendChild(row);
+  });
 }
 
 function toggleTask(i){
-  const t=data.days[today][i];
-  t.completed=!t.completed;
+  // toggle item in the active date (not always today)
+  const day = data.activeDate;
+  if (!data.days[day] || !data.days[day][i]) return;
+  const t = data.days[day][i];
+  t.completed = !t.completed;
   save();
   renderTasks();
 }
 
-document.getElementById("addTaskBtn").onclick=()=>{
-  if(data.activeDate!==today) return;
-  const inp=document.getElementById("newTaskInput");
-  if(!inp.value.trim()) return;
+document.getElementById("addTaskBtn").onclick = () => {
+  if (data.activeDate !== today) return;
+  const inp = document.getElementById("newTaskInput");
+  if (!inp.value.trim()) return;
   data.days[today].push({
-    text:inp.value,
-    completed:false,
-    difficulty:selectedDifficulty
+    text: inp.value.trim(),
+    completed: false,
+    difficulty: selectedDifficulty
   });
-  inp.value="";
-  save(); renderTasks();
+  inp.value = "";
+  save();
+  renderTasks();
 };
 
-/* Observation */
-function shouldShowBehaviorInsight() {
-  const recentDates = getRecentDates(7);
-  let taskCount = 0;
-
-  recentDates.forEach(date => {
-    taskCount += (data.days[date] || []).length;
-  });
-
-  return recentDates.length >= 3 && taskCount >= 5;
-}
+/* Observation helpers */
 function getRecentDates(days) {
   const dates = [];
   for (let i = 0; i < days; i++) {
@@ -596,9 +359,7 @@ function analyzeBehavior() {
       assigned += w;
       if (t.completed) completed += w;
 
-      if (!taskStats[t.text]) {
-        taskStats[t.text] = { completed: 0, missed: 0 };
-      }
+      if (!taskStats[t.text]) taskStats[t.text] = { completed: 0, missed: 0 };
       t.completed ? taskStats[t.text].completed++ : taskStats[t.text].missed++;
     });
   });
@@ -609,7 +370,7 @@ function analyzeBehavior() {
 
   for (const [task, stat] of Object.entries(taskStats)) {
     if (stat.missed >= 3 && stat.missed > stat.completed) {
-      return `â${task}â appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
+      return `“${task}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
     }
   }
 
@@ -619,166 +380,93 @@ function analyzeBehavior() {
 
   return "";
 }
+
 const INSIGHT_KEY = "df_last_insight";
 
 function canShowInsight(message) {
   if (!message) return false;
-
   const last = JSON.parse(localStorage.getItem(INSIGHT_KEY));
   const now = Date.now();
-
   if (!last) return true;
-
   const sameMessage = last.message === message;
   const withinCooldown = now - last.time < 48 * 60 * 60 * 1000;
-
   return !(sameMessage && withinCooldown);
 }
 
 function saveInsight(message) {
-  localStorage.setItem(
-    INSIGHT_KEY,
-    JSON.stringify({ message, time: Date.now() })
-  );
+  localStorage.setItem(INSIGHT_KEY, JSON.stringify({ message, time: Date.now() }));
 }
 
 function evaluateFinalInsight() {
-  // priority order (locked in Phase 16)
-  const behaviorMessage = analyzeBehavior(); // from Phase 15.8
-
+  const behaviorMessage = analyzeBehavior();
   if (!behaviorMessage) return "";
-
   if (canShowInsight(behaviorMessage)) {
     saveInsight(behaviorMessage);
     return behaviorMessage;
   }
-
   return "";
 }
-function renderObservation(){
-  const tasks=data.days[data.activeDate]||[];
-  let completed=0, missed=0;
 
+function renderObservation(){
+  const tasks = data.days[data.activeDate] || [];
+  let completed = 0, missed = 0;
   tasks.forEach(t=>{
-    const w=t.difficulty||1;
-    if(t.completed) completed+=w;
-    else missed+=w;
+    const w = t.difficulty || 1;
+    if (t.completed) completed += w;
+    else missed += w;
   });
 
-  document.getElementById("obsSummary").textContent =
-    `Effort completed: ${completed}, Effort missed: ${missed}`;
-
+  document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
   drawPieChart(completed, missed);
+
   let dailyInsight = "";
-
-if (completed === 0 && missed > 0) {
-  dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
-} else if (completed > 0 && missed === 0) {
-  dailyInsight = "You completed everything you planned today. Effort balance looks good.";
-} else if (completed >= missed) {
-  dailyInsight = "More effort was completed than missed. Consistency is forming.";
-} else {
-  dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
-}
-
-document.getElementById("obsInsight").textContent = dailyInsight;
-const finalInsight = evaluateFinalInsight();
-document.getElementById("weeklyInsight").textContent = finalInsight;
-}
-
-function renderWeeklyInsight() {
-  let streaks = {};
-
-  // Look back 7 days
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split("T")[0];
-    const tasks = data.days[ds] || [];
-
-    tasks.forEach(t => {
-      if (!streaks[t.text]) {
-        streaks[t.text] = { missed: 0, completed: 0 };
-      }
-      if (t.completed) streaks[t.text].completed++;
-      else streaks[t.text].missed++;
-    });
-  }
-
-  const repeatedMisses = Object.entries(streaks)
-    .filter(([_, v]) => v.missed >= 3 && v.missed > v.completed)
-    .map(([name]) => name);
-
-  let weeklyMessage = "";
-
-  if (repeatedMisses.length > 0) {
-    weeklyMessage =
-      `Tasks repeatedly missed this week: ${repeatedMisses.join(", ")}. Consider lowering their difficulty.`;
+  if (completed === 0 && missed > 0) {
+    dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
+  } else if (completed > 0 && missed === 0) {
+    dailyInsight = "You completed everything you planned today. Effort balance looks good.";
+  } else if (completed >= missed) {
+    dailyInsight = "More effort was completed than missed. Consistency is forming.";
   } else {
-    weeklyMessage =
-      "No recurring missed tasks detected this week. Your difficulty balance looks stable.";
+    dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
   }
-
-  document.getElementById("weeklyInsight").textContent = weeklyMessage;
+  document.getElementById("obsInsight").textContent = dailyInsight;
+  document.getElementById("weeklyInsight").textContent = evaluateFinalInsight();
 }
-  
+
 function drawPieChart(completed, missed) {
   const c = document.getElementById("obsChart");
+  if (!c) return;
   const ctx = c.getContext("2d");
 
   const total = completed + missed;
   ctx.clearRect(0, 0, c.width, c.height);
   if (!total) return;
 
-  const cx = 100;
-  const cy = 100;
-
-  const outerR = 80;
-  const innerR = 32;     // DONUT HOLE (fixes center issue)
+  const cx = c.width / 2;
+  const cy = c.height / 2;
+  const outerR = Math.min(cx, cy) - 6;
+  const innerR = outerR * 0.4;
   const gap = 0.04;
   const lift = 6;
-
   let startAngle = -Math.PI / 2;
 
   const slices = [
-    {
-      label: "Completed",
-      value: completed,
-      base: "#2e7d32",
-      dark: "#1b5e20"
-    },
-    {
-      label: "Missed",
-      value: missed,
-      base: "#b71c1c",
-      dark: "#7f0000"
-    }
+    { label: "Completed", value: completed, base: "#2e7d32", dark: "#1b5e20" },
+    { label: "Missed", value: missed, base: "#b71c1c", dark: "#7f0000" }
   ];
 
-  const dominant =
-    completed >= missed ? "Completed" : "Missed";
+  const dominant = completed >= missed ? "Completed" : "Missed";
 
   slices.forEach(slice => {
     if (slice.value === 0) return;
-
     const angle = (slice.value / total) * Math.PI * 2 - gap;
-
     const mid = startAngle + angle / 2;
-    const offset =
-      slice.label === dominant ? lift : 0;
-
+    const offset = slice.label === dominant ? lift : 0;
     const ox = Math.cos(mid) * offset;
     const oy = Math.sin(mid) * offset;
 
-    // Radial gradient (B2)
-    const grad = ctx.createRadialGradient(
-      cx + ox,
-      cy + oy,
-      innerR,
-      cx + ox,
-      cy + oy,
-      outerR
-    );
+    // radial gradient for subtle depth
+    const grad = ctx.createRadialGradient(cx+ox, cy+oy, innerR, cx+ox, cy+oy, outerR);
     grad.addColorStop(0, slice.base);
     grad.addColorStop(1, slice.dark);
 
@@ -793,88 +481,87 @@ function drawPieChart(completed, missed) {
     startAngle += angle + gap;
   });
 
-  // ---- Center text (B3) ----
-  const percent = Math.round(
-    (completed / total) * 100
-  );
-
+  // center text
+  const percent = Math.round((completed / total) * 100);
   ctx.fillStyle = "#222";
   ctx.font = "600 16px system-ui";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(`${percent}%`, cx, cy - 6);
-
   ctx.font = "12px system-ui";
   ctx.fillText("Completed", cx, cy + 10);
 }
-  
+
 /* Statistics helpers */
 function getDaySummary(dateStr){
-  const t=data.days[dateStr]||[];
-  return { assigned:t.length, completed:t.filter(x=>x.completed).length };
+  const t = data.days[dateStr] || [];
+  return { assigned: t.length, completed: t.filter(x=>x.completed).length };
 }
 
 function buildStat(days){
-  let completed=0, assigned=0, html="";
-  for(let i=0;i<days;i++){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    const ds=d.toISOString().split("T")[0];
-    const s=getDaySummary(ds);
-    assigned+=s.assigned;
-    completed+=s.completed;
-    html+=`<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
+  let completed = 0, assigned = 0, html = "";
+  for (let i=0; i<days; i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split("T")[0];
+    const s = getDaySummary(ds);
+    assigned += s.assigned;
+    completed += s.completed;
+    html += `<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
-  return {
-    title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`,
-    detail:html
-  };
+  return { title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
 }
 
 function toggleStatDetail(d){
-  const el=document.getElementById(`stat${d}Detail`);
-  el.style.display=el.style.display==="block"?"none":"block";
+  const el = document.getElementById(`stat${d}Detail`);
+  if (!el) return;
+  el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-/* Panels */
+/* Panels handlers */
 document.getElementById("observeBtn").onclick = () => {
   const panel = document.getElementById("observationPanel");
-
+  if (!panel) return;
   if (panel.style.display === "block") {
-    closePanels();                 // closes Observation
+    closePanels();
   } else {
     closePanels();
     document.getElementById("taskList").style.display = "none";
-    panel.style.display = "block"; // opens Observation
+    panel.style.display = "block";
+    panel.setAttribute("aria-hidden","false");
     renderObservation();
   }
 };
 
-document.getElementById("statsBtn").onclick=()=>{
+document.getElementById("statsBtn").onclick = () => {
   closePanels();
-  document.getElementById("taskList").style.display="none";
-  document.getElementById("statsPanel").style.display="block";
+  document.getElementById("taskList").style.display = "none";
+  const sp = document.getElementById("statsPanel");
+  sp.style.display = "block";
+  sp.setAttribute("aria-hidden","false");
   [7,14,30].forEach(d=>{
-    const r=buildStat(d);
-    document.getElementById(`stat${d}Title`).textContent=r.title;
-    document.getElementById(`stat${d}Detail`).innerHTML=r.detail;
+    const r = buildStat(d);
+    const titleEl = document.getElementById(`stat${d}Title`);
+    const detailEl = document.getElementById(`stat${d}Detail`);
+    if (titleEl) titleEl.textContent = r.title;
+    if (detailEl) detailEl.innerHTML = r.detail;
   });
 };
 
 function closePanels(){
-  document.getElementById("taskList").style.display="block";
-  document.getElementById("observationPanel").style.display="none";
-  document.getElementById("statsPanel").style.display="none";
+  const taskListEl = document.getElementById("taskList");
+  if (taskListEl) taskListEl.style.display = "block";
+
+  const obs = document.getElementById("observationPanel");
+  const sp = document.getElementById("statsPanel");
+  if (obs) { obs.style.display = "none"; obs.setAttribute("aria-hidden","true"); }
+  if (sp) { sp.style.display = "none"; sp.setAttribute("aria-hidden","true"); }
 }
 
-function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
 function syncToday() {
   const realToday = getToday();
-
-  // Only auto-sync if user is currently on today
   if (data.activeDate === realToday) return;
-
-  // If stored activeDate is in the future or invalid, reset
   if (!data.days[data.activeDate]) {
     data.activeDate = realToday;
     if (!data.days[realToday]) data.days[realToday] = [];
@@ -890,6 +577,7 @@ function render(){
   syncToday();
   renderDateStrip();
   renderTasks();
+  closePanels(); // ensure panels are hidden by default
 }
 
 render();
