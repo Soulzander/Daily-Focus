@@ -369,54 +369,32 @@ header, #dateStrip, #actionZone {
   padding: 6px;
 }
 
-.task::after {
-  content: "TASK";
-  color: red;
-  font-size: 10px;
-}
-
 </style>
 </head>
 
 <body>
 
 <header>
-<h2>Daily Focus</h2>
-<p id="fullDate"></p>
+  <h2>Daily Focus</h2>
+  <p id="fullDate"></p>
 </header>
 
 <section id="dateStrip"></section>
 
 <section id="actionZone">
-<input id="newTaskInput" placeholder="Add a task for today">
-<div id="difficultySelector">
-<button class="diff-btn active" data-diff="1">Easy</button>
-<button class="diff-btn" data-diff="2">Medium</button>
-<button class="diff-btn" data-diff="3">Hard</button>
-</div>
+  <input id="newTaskInput" placeholder="Add a task for today">
 
-<div id="actionButtons">
-<button id="addTaskBtn">Add</button>
-<button id="observeBtn">Observation</button>
-<button id="statsBtn">Statistics</button>
-</div>
-</section>
+  <div id="difficultySelector">
+    <button class="diff-btn active" data-diff="1">Easy</button>
+    <button class="diff-btn" data-diff="2">Medium</button>
+    <button class="diff-btn" data-diff="3">Hard</button>
+  </div>
 
-<div class="statBlock" onclick="toggleStatDetail(7)">
-  <div class="statTitle" id="stat7Title"></div>
-  <div class="statDetail" id="stat7Detail"></div>
-</div>
-
-<div class="statBlock" onclick="toggleStatDetail(14)">
-  <div class="statTitle" id="stat14Title"></div>
-  <div class="statDetail" id="stat14Detail"></div>
-</div>
-
-<div class="statBlock" onclick="toggleStatDetail(30)">
-  <div class="statTitle" id="stat30Title"></div>
-  <div class="statDetail" id="stat30Detail"></div>
-</div>
-
+  <div id="actionButtons">
+    <button id="addTaskBtn">Add</button>
+    <button id="observeBtn">Observation</button>
+    <button id="statsBtn">Statistics</button>
+  </div>
 </section>
 
 <div id="contentAnchor">
@@ -433,10 +411,27 @@ header, #dateStrip, #actionZone {
 
   <section id="statsPanel">
     <h3>Statistics</h3>
-    ...
+
+    <div class="statBlock" onclick="toggleStatDetail(7)">
+      <div class="statTitle" id="stat7Title"></div>
+      <div class="statDetail" id="stat7Detail"></div>
+    </div>
+
+    <div class="statBlock" onclick="toggleStatDetail(14)">
+      <div class="statTitle" id="stat14Title"></div>
+      <div class="statDetail" id="stat14Detail"></div>
+    </div>
+
+    <div class="statBlock" onclick="toggleStatDetail(30)">
+      <div class="statTitle" id="stat30Title"></div>
+      <div class="statDetail" id="stat30Detail"></div>
+    </div>
+
   </section>
 
 </div>
+
+</body>
 
 <script>
 const STORAGE_KEY = "daily-focus-data";
