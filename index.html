@@ -717,53 +717,80 @@ function drawPieChart(completed, missed) {
 
   const cx = 100;
   const cy = 100;
-  const radius = 80;
 
-  const gap = 0.04;        // angular gap between slices
-  const depth = 4;         // fake 3D depth
+  const outerR = 80;
+  const innerR = 32;     // DONUT HOLE (fixes center issue)
+  const gap = 0.04;
+  const lift = 6;
 
   let startAngle = -Math.PI / 2;
 
   const slices = [
-    { value: completed, color: "#2e7d32", shadow: "#1b5e20" },
-    { value: missed,    color: "#b71c1c", shadow: "#7f0000" }
+    {
+      label: "Completed",
+      value: completed,
+      base: "#2e7d32",
+      dark: "#1b5e20"
+    },
+    {
+      label: "Missed",
+      value: missed,
+      base: "#b71c1c",
+      dark: "#7f0000"
+    }
   ];
+
+  const dominant =
+    completed >= missed ? "Completed" : "Missed";
 
   slices.forEach(slice => {
     if (slice.value === 0) return;
 
     const angle = (slice.value / total) * Math.PI * 2 - gap;
 
-    /* ---- depth layer (shadow) ---- */
-    ctx.beginPath();
-    ctx.moveTo(cx, cy + depth);
-    ctx.arc(
-      cx,
-      cy + depth,
-      radius,
-      startAngle,
-      startAngle + angle
-    );
-    ctx.closePath();
-    ctx.fillStyle = slice.shadow;
-    ctx.fill();
+    const mid = startAngle + angle / 2;
+    const offset =
+      slice.label === dominant ? lift : 0;
 
-    /* ---- main slice ---- */
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(
-      cx,
-      cy,
-      radius,
-      startAngle,
-      startAngle + angle
+    const ox = Math.cos(mid) * offset;
+    const oy = Math.sin(mid) * offset;
+
+    // Radial gradient (B2)
+    const grad = ctx.createRadialGradient(
+      cx + ox,
+      cy + oy,
+      innerR,
+      cx + ox,
+      cy + oy,
+      outerR
     );
+    grad.addColorStop(0, slice.base);
+    grad.addColorStop(1, slice.dark);
+
+    ctx.beginPath();
+    ctx.arc(cx + ox, cy + oy, outerR, startAngle, startAngle + angle);
+    ctx.arc(cx + ox, cy + oy, innerR, startAngle + angle, startAngle, true);
     ctx.closePath();
-    ctx.fillStyle = slice.color;
+
+    ctx.fillStyle = grad;
     ctx.fill();
 
     startAngle += angle + gap;
   });
+
+  // ---- Center text (B3) ----
+  const percent = Math.round(
+    (completed / total) * 100
+  );
+
+  ctx.fillStyle = "#222";
+  ctx.font = "600 16px system-ui";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`${percent}%`, cx, cy - 6);
+
+  ctx.font = "12px system-ui";
+  ctx.fillText("Completed", cx, cy + 10);
 }
   
 /* Statistics helpers */
