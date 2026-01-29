@@ -1,162 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Daily Focus</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Daily Focus — Redesigned Observation SVG</title>
 
 <style>
-/* ---------- layout & theme ---------- */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  /* ---------- layout & theme ---------- */
+  :root{
+    --bg1:#7E97FF; --bg2:#5f63b8; --bg3:#1537b3;
+    --frost: rgba(255,255,255,0.55);
+    --muted-ring: rgba(255,255,255,0.18);
+    --text:#0e1320;
+  }
 
-  background: radial-gradient(
-    circle at top left,
-    #7E97FF 0%,
-    #5f63b8 45%,
-    #1537b3 100%
-  );
-}
+  html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  body{
+    display:flex;flex-direction:column;height:100vh;
+    background: radial-gradient(circle at top left,var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 100%);
+    color:var(--text);
+  }
 
-/* Header + zones */
-header, #dateStrip, #actionZone {
-  padding: 8px;
-}
+  header, #dateStrip, #actionZone { padding: 12px; }
+  h2{ margin:8px 0 4px 0; font-size:32px; }
+  p#fullDate{ margin:0 0 8px 0; opacity:.95; }
 
-/* Date strip (scrollable last 7 days) */
-#dateStrip {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 6px;
-}
-#dateStrip::-webkit-scrollbar { display: none; }
+  /* Date strip */
+  #dateStrip{ display:flex;gap:10px; overflow-x:auto;padding-bottom:6px; }
+  #dateStrip::-webkit-scrollbar{display:none;}
+  .date-item{ flex:0 0 auto; min-width:100px; text-align:center; padding:10px;border-radius:12px; background:rgba(255,255,255,0.45); border:1px solid rgba(255,255,255,0.35); cursor:pointer; }
+  .date-item.active{ background:#222;color:#fff; }
 
-.date-item {
-  min-width: 90px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  text-align: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.date-item.active {
-  background: #222;
-  color: white;
-}
+  /* action zone */
+  #actionZone{ background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); border-bottom:1px solid rgba(255,255,255,0.45); }
+  #newTaskInput{ width:100%; height:52px; padding:12px;border-radius:12px;border:1px solid #ddd; box-sizing:border-box; font-size:16px; background:rgba(255,255,255,0.9); }
+  #difficultySelector{ display:flex; gap:8px; margin-top:8px; }
+  .diff-btn{ flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.08); background:rgba(255,255,255,0.5); cursor:pointer; }
+  .diff-btn.active{ background:#222;color:#fff; }
 
-#actionZone {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
-}
+  #actionButtons{ display:flex; gap:10px; margin-top:12px; }
+  #actionButtons button{ flex:1; height:48px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); background:rgba(255,255,255,0.55); cursor:pointer; }
 
-/* content anchor: make it take remaining height and scroll */
-#contentAnchor {
-  flex: 1;
-  overflow: auto;
-  background: rgba(255,255,255,0.06);
-  border-radius: 18px;
-  margin: 8px;
-  padding: 12px;
-}
+  /* content anchor - holds tasks and panels */
+  #contentAnchor{ flex:1; overflow:auto; margin:12px; padding:14px; border-radius:18px; background: rgba(255,255,255,0.06); }
 
-/* Task list */
-#taskList {
-  width: 100%;
-  padding: 8px 0;
-}
+  /* task list */
+  #taskList{ width:100%; margin-bottom:16px; }
+  .task{ display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:12px; border-radius:12px; background: rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.35); }
+  .task-text{ flex:1; font-family:"Copperplate","Copperplate Gothic Light",serif; font-weight:500; font-size:18px; }
+  .task-check{ width:20px;height:20px; }
+  .diff-badge{ padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; margin-left:auto; }
 
-/* Task row */
-.task {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.35);
-}
-.task-text { flex: 1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
+  .diff-1 .task-text{ color:#2E7D32; }   /* easy green */
+  .diff-2 .task-text{ color:#0277BD; }   /* medium blue */
+  .diff-3 .task-text{ color:#C62828; }   /* hard red */
 
-/* difficulty colours */
-.task.diff-1 .task-text { color: #2E7D32; }
-.task.diff-2 .task-text { color: #0277BD; }
-.task.diff-3 .task-text { color: #C62828; }
+  .diff-badge.diff-1{ background:#4CAF50; color:#07210a; }
+  .diff-badge.diff-2{ background:#03A9F4; color:#012a3a; }
+  .diff-badge.diff-3{ background:#F44336; color:#3a0503; }
 
-/* completed / missed / hover */
-.task.completed { opacity: 0.75; transition: box-shadow .3s, opacity .3s; }
-.task.incomplete-today { color: #222; }
-.task.missed { color: #b71c1c; opacity: 0.8; }
-.task.clickable { cursor: pointer; }
-.task.read-only { cursor: default; }
+  /* panels */
+  #observationPanel, #statsPanel{ margin-top: 6px; padding:14px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+  h3{ margin:0 0 8px 0; }
 
-.task-check { width:18px; height:18px; cursor:pointer; accent-color:#2e7d32; }
-.diff-badge {
-  margin-left:auto; padding: 2px 8px; border-radius:999px; font-weight:600; font-size:12px; line-height:1.2;
-  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-  background: rgba(255,255,255,0.55);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-.diff-badge.diff-1 { background:#4CAF50; color:#0b2e13; }
-.diff-badge.diff-2 { background:#03A9F4; color:#012a3a; }
-.diff-badge.diff-3 { background:#F44336; color:#3a0503; }
+  /* observation SVG area */
+  .obs-inner{ padding:12px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .obs-summary{ align-self:flex-start; margin-bottom:8px; font-size:16px; }
+  .obs-caption{ width:100%; text-align:center; font-size:14px; color:rgba(0,0,0,0.7); margin-top:12px; }
 
-/* input and controls */
-#newTaskInput {
-  width:100%; height:56px; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box;
-  background: rgba(255,255,255,0.85);
-}
-#difficultySelector { display:flex; gap:6px; margin-top:6px; }
-.diff-btn { flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; background: rgba(255,255,255,0.5); }
-.diff-btn.active { background: rgba(0,0,0,0.8); color:white; }
+  /* SVG visuals */
+  #obsChartSvg{ width:240px; height:240px; display:block; }
+  .ring-bg { stroke: rgba(0,0,0,0.12); opacity:0.18; }
+  .segment { stroke-linecap: round; transition: stroke-dashoffset 800ms cubic-bezier(.2,.8,.2,1), opacity 300ms ease; }
+  .grey-remaining { stroke: rgba(255,255,255,0.14); }
 
-/* action buttons */
-#actionButtons { display:flex; gap:8px; margin-top:8px; }
-#actionButtons button { flex:1; height:48px; font-size:16px; border-radius:10px; background: rgba(255,255,255,0.5); }
+  /* center text */
+  #chartPercent { font: 600 22px system-ui; fill: #0e1320; }
+  #chartLabel  { font: 12px system-ui; fill:#0e1320; }
 
-/* Panels - hidden by default so they don't show on first load */
-#observationPanel, #statsPanel { display: none; color: #0e1320; }
+  /* stats rows */
+  .statBlock{ margin-top:12px; padding:12px; border-radius:10px; background: rgba(255,255,255,0.45); }
+  .statDetail{ margin-top:8px; display:none; }
 
-/* stats card */
-.statBlock { margin-top:12px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.45); cursor:pointer; }
-.statRow { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #ddd; }
-.statRow:last-child { border-bottom:none; }
-
-/* --------- SVG donut styles --------- */
-#obsChartSvg {
-  display: block;
-  margin: 8px auto;
-  width: 220px;
-  height: 220px;
-}
-#obsChartSvg circle {
-  fill: none;
-  stroke-width: 20;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 700ms ease;
-}
-#arcEasy { stroke: #4CAF50; }
-#arcMedium { stroke: #03A9F4; }
-#arcHard { stroke: #F44336; }
-
-/* small responsive tweaks */
-@media (min-width:900px){
-  #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
-}
+  /* small screens tweak */
+  @media (max-width:420px){
+    .task-text{ font-size:16px; }
+    #obsChartSvg{ width:200px; height:200px; }
+  }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -167,7 +99,7 @@ header, #dateStrip, #actionZone {
 <section id="dateStrip" aria-label="Date strip"></section>
 
 <section id="actionZone">
-  <input id="newTaskInput" placeholder="Add a task for today" aria-label="New task">
+  <input id="newTaskInput" placeholder="Add a task for today" />
   <div id="difficultySelector" role="tablist" aria-label="Difficulty">
     <button class="diff-btn active" data-diff="1">Easy</button>
     <button class="diff-btn" data-diff="2">Medium</button>
@@ -181,33 +113,36 @@ header, #dateStrip, #actionZone {
   </div>
 </section>
 
-<!-- single content anchor (only one set of panels) -->
 <div id="contentAnchor">
 
   <main id="taskList" aria-live="polite"></main>
 
-  <section id="observationPanel" aria-hidden="true">
-    <h3>Observation</h3>
-    <p id="obsSummary"></p>
+  <section id="observationPanel" aria-hidden="true" style="display:none;">
+    <div class="obs-inner">
+      <div class="obs-summary" id="obsSummary"></div>
 
-    <!-- SVG donut (replaces canvas) -->
-    <svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
-      <!-- rotate group so 0% starts at top -->
-      <g transform="rotate(-90 110 110)">
-        <circle id="arcEasy"   cx="110" cy="110" r="80" />
-        <circle id="arcMedium" cx="110" cy="110" r="80" />
-        <circle id="arcHard"   cx="110" cy="110" r="80" />
-      </g>
+      <!-- SVG donut: segments will be inserted by JS -->
+      <svg id="obsChartSvg" viewBox="0 0 240 240" aria-label="Completion chart">
+        <!-- background ring (full circle muted) -->
+        <circle class="ring-bg" cx="120" cy="120" r="88" stroke-width="24" fill="none"></circle>
 
-      <text id="chartPercent" x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">0%</text>
-      <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
-    </svg>
+        <!-- placeholder for segments (JS will insert <circle> elements with class 'segment') -->
+        <g id="segmentsContainer"></g>
 
-    <p id="obsInsight"></p>
-    <p id="weeklyInsight"></p>
+        <!-- remaining (uncompleted) arc (drawn last so it sits on top of grey background but behind colored segments) -->
+        <circle id="remainingArc" class="grey-remaining" cx="120" cy="120" r="88" stroke-width="24" fill="none" transform="rotate(-90 120 120)"></circle>
+
+        <!-- center labels -->
+        <text id="chartPercent" x="120" y="112" text-anchor="middle">0%</text>
+        <text id="chartLabel" x="120" y="132" text-anchor="middle">Completed</text>
+      </svg>
+
+      <div class="obs-caption" id="obsInsight"></div>
+      <div class="obs-caption" id="weeklyInsight"></div>
+    </div>
   </section>
 
-  <section id="statsPanel" aria-hidden="true">
+  <section id="statsPanel" aria-hidden="true" style="display:none;">
     <h3>Statistics</h3>
 
     <div class="statBlock" onclick="toggleStatDetail(7)">
@@ -224,74 +159,66 @@ header, #dateStrip, #actionZone {
       <div class="statTitle" id="stat30Title"></div>
       <div class="statDetail" id="stat30Detail"></div>
     </div>
-
   </section>
 
 </div>
 
 <script>
-const STORAGE_KEY = "daily-focus-data";
+/* ==========================
+   Data model & helpers
+   ========================== */
+const STORAGE_KEY = "daily-focus-data-v2";
+const WEIGHTS = { 1:1, 2:2, 3:3 }; // Easy=1, Medium=2, Hard=3
+const SEG_COLORS = { 1: "#2E7D32", 2: "#03A9F4", 3: "#F44336" }; // easy green, medium blue, hard red
 
-function getToday() {
-  return new Date().toISOString().split("T")[0];
-}
+function getToday(){ return new Date().toISOString().split("T")[0]; }
 
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDate:getToday() };
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days: {}, activeDate: getToday() };
 const today = getToday();
-data.activeDate = today;
+data.activeDate = data.activeDate || today;
 if (!data.days[today]) data.days[today] = [];
-save(); // uses function below (hoisted)
+save();
 
-document.getElementById("fullDate").textContent = new Date(today).toDateString();
+/* small util */
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function parseDateKey(d){ return new Date(d).toISOString().split("T")[0]; }
 
-/* Difficulty selector */
+/* ==========================
+   UI: dates, tasks
+   ========================== */
+document.getElementById("fullDate").textContent = new Date(data.activeDate).toDateString();
+
 let selectedDifficulty = 1;
 document.querySelectorAll(".diff-btn").forEach(b=>{
-  b.onclick=()=>{
+  b.onclick = () => {
     document.querySelectorAll(".diff-btn").forEach(x=>x.classList.remove("active"));
     b.classList.add("active");
     selectedDifficulty = Number(b.dataset.diff);
   };
 });
 
-/* Dates */
-function renderDateStrip() {
+function renderDateStrip(){
   const strip = document.getElementById("dateStrip");
   strip.innerHTML = "";
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split("T")[0];
-
+  for (let i=0;i<7;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const key = d.toISOString().split("T")[0];
     const item = document.createElement("div");
     item.className = "date-item";
-    item.textContent = d.toLocaleDateString(undefined, {
-      day: "numeric",
-      month: "short"
-    });
-
-    if (ds === data.activeDate) item.classList.add("active");
-    item.onclick = () => selectDate(ds);
+    if (key === data.activeDate) item.classList.add("active");
+    item.textContent = d.toLocaleDateString(undefined,{ day:"numeric", month:"short"});
+    item.onclick = () => { data.activeDate = key; save(); render(); };
     strip.appendChild(item);
   }
 }
 
-function selectDate(date){
-  closePanels();
-  data.activeDate = date;
-  save();
-  render();
-}
-
-/* Tasks rendering */
 function renderTasks(){
   const list = document.getElementById("taskList");
   list.innerHTML = "";
   const tasks = data.days[data.activeDate] || [];
   const isToday = data.activeDate === today;
 
-  if(!tasks.length){
+  if (!tasks.length) {
     const p = document.createElement("div");
     p.textContent = "No tasks.";
     p.style.opacity = "0.8";
@@ -299,247 +226,214 @@ function renderTasks(){
     return;
   }
 
-  tasks.forEach((t, i) => {
+  tasks.forEach((t,i)=>{
     const row = document.createElement("div");
-    row.className = "task";
+    row.className = "task diff-" + (t.difficulty || 1);
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "task-check";
-    checkbox.checked = !!t.completed;
-    checkbox.disabled = !isToday;
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.className="task-check";
+    cb.checked = !!t.completed; cb.disabled = !isToday;
+    cb.onclick = (e)=>{ e.stopPropagation(); toggleTask(i); };
 
-    checkbox.onclick = (e) => {
-      e.stopPropagation();
-      toggleTask(i);
-    };
+    const txt = document.createElement("div");
+    txt.className="task-text"; txt.textContent = t.text;
 
-    const label = document.createElement("span");
-    label.className = "task-text";
-    label.textContent = t.text;
+    const badge = document.createElement("div");
+    badge.className = "diff-badge diff-" + (t.difficulty || 1);
+    badge.textContent = t.difficulty == 1 ? "Easy" : t.difficulty == 2 ? "Medium" : "Hard";
 
-    const badge = document.createElement("span");
-    badge.className = `diff-badge diff-${t.difficulty}`;
-    badge.textContent =
-      t.difficulty === 1 ? "Easy" :
-      t.difficulty === 2 ? "Medium" : "Hard";
-
-    row.classList.add(`diff-${t.difficulty}`);
-    row.append(checkbox, label, badge);
+    row.appendChild(cb); row.appendChild(txt); row.appendChild(badge);
 
     if (t.completed) row.classList.add("completed");
     else if (!isToday) row.classList.add("missed");
     else row.classList.add("incomplete-today");
 
-    if (isToday) {
+    if (isToday){
+      row.onclick = ()=> toggleTask(i);
       row.classList.add("clickable");
-      row.onclick = () => toggleTask(i);
-    } else {
-      row.classList.add("read-only");
     }
 
     list.appendChild(row);
   });
 }
 
-function toggleTask(i){
-  const day = data.activeDate;
-  if (!data.days[day] || !data.days[day][i]) return;
-  const t = data.days[day][i];
-  t.completed = !t.completed;
-  save();
-  renderTasks();
+function toggleTask(index){
+  const list = data.days[data.activeDate];
+  if (!list || !list[index]) return;
+  list[index].completed = !list[index].completed;
+  save(); renderTasks();
 }
 
 document.getElementById("addTaskBtn").onclick = () => {
   if (data.activeDate !== today) return;
   const inp = document.getElementById("newTaskInput");
   if (!inp.value.trim()) return;
-  data.days[today].push({
-    text: inp.value.trim(),
-    completed: false,
-    difficulty: selectedDifficulty
-  });
-  inp.value = "";
-  save();
-  renderTasks();
+  data.days[today].push({ text: inp.value.trim(), completed:false, difficulty:selectedDifficulty });
+  inp.value=""; save(); renderTasks();
 };
 
-/* Observation helpers */
-function getRecentDates(days) {
-  const dates = [];
-  for (let i = 0; i < days; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    dates.push(d.toISOString().split("T")[0]);
-  }
-  return dates;
+/* ==========================
+   Observation logic + SVG
+   ========================== */
+
+function getAssignedWeightsForDay(dateKey){
+  const tasks = data.days[dateKey] || [];
+  let total=0;
+  const byDiff = { 1:0, 2:0, 3:0 }; // assigned weights (for all tasks)
+  const completedByDiff = { 1:0, 2:0, 3:0 };
+  tasks.forEach(t=>{
+    const w = WEIGHTS[t.difficulty || 1] || 1;
+    byDiff[t.difficulty || 1] += w;
+    total += w;
+    if (t.completed) completedByDiff[t.difficulty || 1] += w;
+  });
+  return { total, byDiff, completedByDiff };
 }
 
-function analyzeBehavior() {
+function analyzeBehavior7(){
+  // re-used for weekly insight
   const dates = getRecentDates(7);
-  let assigned = 0, completed = 0;
-  const taskStats = {};
-
-  dates.forEach(date => {
-    (data.days[date] || []).forEach(t => {
-      const w = t.difficulty || 1;
+  let assigned=0, completed=0;
+  const stats = {};
+  dates.forEach(d=>{
+    (data.days[d] || []).forEach(t=>{
+      const w = WEIGHTS[t.difficulty || 1] || 1;
       assigned += w;
       if (t.completed) completed += w;
-
-      if (!taskStats[t.text]) taskStats[t.text] = { completed: 0, missed: 0 };
-      t.completed ? taskStats[t.text].completed++ : taskStats[t.text].missed++;
+      stats[t.text] = stats[t.text] || { missed:0, completed:0 };
+      if (t.completed) stats[t.text].completed++; else stats[t.text].missed++;
     });
   });
-
-  if (assigned >= 5 && completed / assigned < 0.5) {
-    return "You seem to be taking on more than you can sustain right now. Consider reducing task volume or difficulty.";
+  if (assigned>=5 && (completed/assigned) < 0.5) return "You seem to be taking on more than you can sustain right now. Consider reducing task volume or difficulty.";
+  for (const [k,v] of Object.entries(stats)){
+    if (v.missed >= 3 && v.missed > v.completed) return `“${k}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
   }
-
-  for (const [task, stat] of Object.entries(taskStats)) {
-    if (stat.missed >= 3 && stat.missed > stat.completed) {
-      return `“${task}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
-    }
-  }
-
-  if (assigned > 0 && completed / assigned >= 0.8) {
-    return "Your workload and completion feel well balanced lately.";
-  }
-
+  if (assigned>0 && completed/assigned >= 0.8) return "Your workload and completion feel well balanced lately.";
   return "";
 }
 
-const INSIGHT_KEY = "df_last_insight";
+function evaluateFinalInsight(){ const msg = analyzeBehavior7(); if(!msg) return ""; const key = "df_last_insight"; const last = JSON.parse(localStorage.getItem(key) || "null"); const now = Date.now(); if (!last) { localStorage.setItem(key, JSON.stringify({message:msg,time:now})); return msg; } if (last.message === msg && (now - last.time) < 48*60*60*1000) return ""; localStorage.setItem(key, JSON.stringify({message:msg,time:now})); return msg; }
 
-function canShowInsight(message) {
-  if (!message) return false;
-  const last = JSON.parse(localStorage.getItem(INSIGHT_KEY));
-  const now = Date.now();
-  if (!last) return true;
-  const sameMessage = last.message === message;
-  const withinCooldown = now - last.time < 48 * 60 * 60 * 1000;
-  return !(sameMessage && withinCooldown);
+function getRecentDates(days){
+  const arr=[];
+  for(let i=0;i<days;i++){ const d=new Date(); d.setDate(d.getDate()-i); arr.push(d.toISOString().split("T")[0]); }
+  return arr;
 }
 
-function saveInsight(message) {
-  localStorage.setItem(INSIGHT_KEY, JSON.stringify({ message, time: Date.now() }));
-}
+/* draw segmented SVG ring: completed segments (colored) contiguous and remaining grey */
+function drawSvgSegments(){
+  const info = getAssignedWeightsForDay(data.activeDate);
+  const total = info.total;
+  const completedByDiff = info.completedByDiff;
 
-function evaluateFinalInsight() {
-  const behaviorMessage = analyzeBehavior();
-  if (!behaviorMessage) return "";
-  if (canShowInsight(behaviorMessage)) {
-    saveInsight(behaviorMessage);
-    return behaviorMessage;
+  const W = total || 0;
+  const completedTotal = (completedByDiff[1]||0) + (completedByDiff[2]||0) + (completedByDiff[3]||0);
+  const percent = W ? Math.round((completedTotal / W) * 100) : 0;
+
+  // update center text
+  const txt = document.getElementById("chartPercent");
+  if (txt) txt.textContent = `${percent}%`;
+
+  // prepare SVG ring math
+  const r = 88;
+  const C = 2 * Math.PI * r;
+
+  // remaining arc (uncompleted) should represent fraction (1 - completedTotal / W)
+  const remaining = Math.max(0, W ? (W - completedTotal) / W : 1);
+  const remainingEl = document.getElementById("remainingArc");
+  if (remainingEl) {
+    remainingEl.style.strokeDasharray = `${C * remaining} ${C}`;
+    // dashoffset so remaining starts immediately after completed area: offset = C * (1 - completedTotal/W)
+    const remainingOffset = C * (1 - (completedTotal / (W || 1)));
+    // animate
+    requestAnimationFrame(()=> remainingEl.style.strokeDashoffset = remainingOffset );
   }
-  return "";
-}
 
-/* RENDER OBSERVATION -> uses SVG donut */
-function renderObservation(){
-  const tasks = data.days[data.activeDate] || [];
-  let completed = 0, missed = 0;
-  tasks.forEach(t=>{
-    const w = t.difficulty || 1;
-    if (t.completed) completed += w;
-    else missed += w;
+  // build segments (completed parts) as contiguous pieces
+  const container = document.getElementById("segmentsContainer");
+  container.innerHTML = ""; // reset
+
+  if (!W || completedTotal === 0){
+    // nothing completed — ensure remaining takes full ring
+    if (remainingEl) remainingEl.style.opacity = "1";
+    return;
+  }
+
+  // compute fractions for each difficulty type relative to total W (not just completed portion)
+  // This ensures segments sizes correspond to their share of *total assigned work*, but only positive for completed weights.
+  const segOrder = [1,2,3]; // easy -> medium -> hard
+  let cumulativeBefore = 0; // fraction already drawn (completed fraction before current segment)
+  segOrder.forEach(diff => {
+    const wCompleted = completedByDiff[diff] || 0;
+    if (wCompleted <= 0) return; // skip zero segments
+
+    const segFractionOfTotal = wCompleted / W; // fraction of whole circle
+    const segLength = C * segFractionOfTotal;   // length in px on circumference
+
+    // create circle segment element
+    const seg = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    seg.setAttribute("cx","120"); seg.setAttribute("cy","120"); seg.setAttribute("r", String(r));
+    seg.setAttribute("stroke-width","24");
+    seg.setAttribute("fill","none");
+    seg.setAttribute("class","segment");
+    seg.setAttribute("stroke", SEG_COLORS[diff] || "#999999");
+    // rotate to start at 12 o'clock
+    seg.setAttribute("transform","rotate(-90 120 120)");
+
+    // dasharray shows the visible piece equal to segLength
+    seg.style.strokeDasharray = `${segLength} ${C}`;
+
+    // compute dashoffset so this segment ends at (cumulativeBefore + segFractionOfTotal)
+    // desired offset = C * (1 - (cumulativeBefore + segFractionOfTotal))
+    const desiredOffset = C * (1 - (cumulativeBefore + segFractionOfTotal));
+    // start from full hidden state for animation
+    seg.style.strokeDashoffset = String(C);
+    // append before animating
+    container.appendChild(seg);
+    // animate to desired offset next frame
+    requestAnimationFrame(()=>{
+      seg.style.strokeDashoffset = String(desiredOffset);
+    });
+
+    cumulativeBefore += segFractionOfTotal;
   });
 
+  // subtle opacity control
+  if (remainingEl) remainingEl.style.opacity = completedTotal === W ? "0" : "1";
+}
+
+/* renderObservation glue */
+function renderObservation(){
+  const info = getAssignedWeightsForDay(data.activeDate);
+  let completed=0, missed=0;
+  Object.values(info.completedByDiff).forEach(v => completed += (v||0));
+  missed = Math.max(0, (info.total || 0) - completed);
+
   document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
-  drawSvgDonut(completed, missed);
+
+  drawSvgSegments();
 
   let dailyInsight = "";
-  if (completed === 0 && missed > 0) {
-    dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
-  } else if (completed > 0 && missed === 0) {
-    dailyInsight = "You completed everything you planned today. Effort balance looks good.";
-  } else if (completed >= missed) {
-    dailyInsight = "More effort was completed than missed. Consistency is forming.";
-  } else {
-    dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
-  }
+  if (completed === 0 && missed > 0) dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
+  else if (completed > 0 && missed === 0) dailyInsight = "You completed everything you planned today. Effort balance looks good.";
+  else if (completed >= missed) dailyInsight = "More effort was completed than missed. Consistency is forming.";
+  else dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
+
   document.getElementById("obsInsight").textContent = dailyInsight;
   document.getElementById("weeklyInsight").textContent = evaluateFinalInsight();
 }
 
-/* SVG donut drawing function */
-function drawSvgDonut(completed, missed) {
-  const svg = document.getElementById("obsChartSvg");
-  if (!svg) return;
-
-  // Count completed tasks by difficulty (weighted)
-  const tasks = data.days[data.activeDate] || [];
-  const weight = {1:1, 2:2, 3:3}; // adjust weights if you have specific system
-  let easy=0, medium=0, hard=0;
-  tasks.forEach(t => {
-    if (!t.completed) return;
-    const w = weight[t.difficulty] || 1;
-    if (t.difficulty === 1) easy += w;
-    else if (t.difficulty === 2) medium += w;
-    else hard += w;
-  });
-
-  const sum = easy + medium + hard;
-  const percent = (completed + missed) ? Math.round((completed / (completed + missed)) * 100) : 0;
-  document.getElementById("chartPercent").textContent = `${percent}%`;
-
-  const arcEasy = document.getElementById("arcEasy");
-  const arcMedium = document.getElementById("arcMedium");
-  const arcHard = document.getElementById("arcHard");
-
-  // radius must match SVG circle r
-  const r = 80;
-  const C = 2 * Math.PI * r;
-
-  // prepare circles
-  [arcEasy, arcMedium, arcHard].forEach(c => {
-    if (!c) return;
-    c.style.transition = "stroke-dashoffset 700ms ease";
-    c.setAttribute("stroke-dasharray", `${C} ${C}`);
-    // start from zero (hidden)
-    c.style.strokeDashoffset = C;
-  });
-
-  if (!sum) {
-    // nothing completed — keep circles hidden
-    return;
-  }
-
-  // compute lengths
-  const lenEasy = (easy / sum) * C;
-  const lenMedium = (medium / sum) * C;
-  const lenHard = (hard / sum) * C;
-
-  // target offsets (place arcs in sequence easy -> medium -> hard)
-  const targetEasy = C - lenEasy;
-  const targetMedium = C - lenEasy - lenMedium;
-  const targetHard = C - lenEasy - lenMedium - lenHard;
-
-  // set dasharray per arc to clip lengths (so only segment visible)
-  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
-  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
-  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
-
-  // small timeout to ensure transition from initial value runs
-  requestAnimationFrame(() => {
-    // also use another rAF to be safe on some browsers
-    requestAnimationFrame(() => {
-      arcEasy.style.strokeDashoffset = targetEasy;
-      arcMedium.style.strokeDashoffset = targetMedium;
-      arcHard.style.strokeDashoffset = targetHard;
-    });
-  });
-}
-
-/* Statistics helpers */
+/* ==========================
+   Stats helpers & UI
+   ========================== */
 function getDaySummary(dateStr){
   const t = data.days[dateStr] || [];
   return { assigned: t.length, completed: t.filter(x=>x.completed).length };
 }
 
 function buildStat(days){
-  let completed = 0, assigned = 0, html = "";
-  for (let i=0; i<days; i++){
+  let completed=0, assigned=0, html="";
+  for (let i=0;i<days;i++){
     const d = new Date(); d.setDate(d.getDate()-i);
     const ds = d.toISOString().split("T")[0];
     const s = getDaySummary(ds);
@@ -547,77 +441,59 @@ function buildStat(days){
     completed += s.completed;
     html += `<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
-  return { title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
+  return { title: `Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
 }
 
 function toggleStatDetail(d){
   const el = document.getElementById(`stat${d}Detail`);
-  if (!el) return;
+  if(!el) return;
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-/* Panels handlers (TOGGLE SAFE) */
-
-// Observation toggle
+/* ==========================
+   Panels: toggle safe
+   ========================== */
 document.getElementById("observeBtn").onclick = () => {
   const panel = document.getElementById("observationPanel");
   const taskList = document.getElementById("taskList");
-
   const isOpen = window.getComputedStyle(panel).display !== "none";
-
-  if (isOpen) {
-    closePanels(); // close & show tasks
-    return;
-  }
-
+  if (isOpen){ closePanels(); return; }
   closePanels();
   taskList.style.display = "none";
   panel.style.display = "block";
+  panel.setAttribute("aria-hidden","false");
   renderObservation();
 };
 
-// Statistics toggle
 document.getElementById("statsBtn").onclick = () => {
   const panel = document.getElementById("statsPanel");
   const taskList = document.getElementById("taskList");
-
   const isOpen = window.getComputedStyle(panel).display !== "none";
-
-  if (isOpen) {
-    closePanels(); // close & show tasks
-    return;
-  }
-
+  if (isOpen){ closePanels(); return; }
   closePanels();
   taskList.style.display = "none";
   panel.style.display = "block";
+  panel.setAttribute("aria-hidden","false");
 
-  [7, 14, 30].forEach(d => {
+  [7,14,30].forEach(d=>{
     const r = buildStat(d);
-    const titleEl = document.getElementById(`stat${d}Title`);
-    const detailEl = document.getElementById(`stat${d}Detail`);
-
-    titleEl.textContent = r.title;
-    detailEl.innerHTML = r.detail;
-
-    // FORCE details closed on open
-    detailEl.style.display = "none";
+    document.getElementById(`stat${d}Title`).textContent = r.title;
+    document.getElementById(`stat${d}Detail`).innerHTML = r.detail;
+    document.getElementById(`stat${d}Detail`).style.display = "none";
   });
 };
 
 function closePanels(){
-  const taskListEl = document.getElementById("taskList");
-  if (taskListEl) taskListEl.style.display = "block";
-
-  const obs = document.getElementById("observationPanel");
-  const sp = document.getElementById("statsPanel");
+  const taskListEl = document.getElementById("taskList"); if (taskListEl) taskListEl.style.display = "block";
+  const obs = document.getElementById("observationPanel"); const sp = document.getElementById("statsPanel");
   if (obs) { obs.style.display = "none"; obs.setAttribute("aria-hidden","true"); }
   if (sp) { sp.style.display = "none"; sp.setAttribute("aria-hidden","true"); }
 }
 
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-
-function syncToday() {
+/* ==========================
+   Sync + render
+   ========================== */
+function syncToday(){
   const realToday = getToday();
   if (data.activeDate === realToday) return;
   if (!data.days[data.activeDate]) {
@@ -627,15 +503,14 @@ function syncToday() {
   }
 }
 
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) render();
-});
+document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) render(); });
 
 function render(){
   syncToday();
   renderDateStrip();
   renderTasks();
-  closePanels(); // keep panels hidden by default
+  closePanels(); // hide panels by default on render so the initial view is tidy
+  document.getElementById("fullDate").textContent = new Date(data.activeDate).toDateString();
 }
 
 render();
