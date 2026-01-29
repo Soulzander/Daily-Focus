@@ -518,32 +518,52 @@ function toggleStatDetail(d){
 }
 
 /* Panels handlers */
+/* Panels handlers (TOGGLE SAFE) */
+
+// Observation toggle
 document.getElementById("observeBtn").onclick = () => {
   const panel = document.getElementById("observationPanel");
-  if (!panel) return;
-  if (panel.style.display === "block") {
-    closePanels();
-  } else {
-    closePanels();
-    document.getElementById("taskList").style.display = "none";
-    panel.style.display = "block";
-    panel.setAttribute("aria-hidden","false");
-    renderObservation();
+  const taskList = document.getElementById("taskList");
+
+  const isOpen = window.getComputedStyle(panel).display !== "none";
+
+  if (isOpen) {
+    closePanels(); // close & show tasks
+    return;
   }
+
+  closePanels();
+  taskList.style.display = "none";
+  panel.style.display = "block";
+  renderObservation();
 };
 
+// Statistics toggle
 document.getElementById("statsBtn").onclick = () => {
+  const panel = document.getElementById("statsPanel");
+  const taskList = document.getElementById("taskList");
+
+  const isOpen = window.getComputedStyle(panel).display !== "none";
+
+  if (isOpen) {
+    closePanels(); // close & show tasks
+    return;
+  }
+
   closePanels();
-  document.getElementById("taskList").style.display = "none";
-  const sp = document.getElementById("statsPanel");
-  sp.style.display = "block";
-  sp.setAttribute("aria-hidden","false");
-  [7,14,30].forEach(d=>{
+  taskList.style.display = "none";
+  panel.style.display = "block";
+
+  [7, 14, 30].forEach(d => {
     const r = buildStat(d);
     const titleEl = document.getElementById(`stat${d}Title`);
     const detailEl = document.getElementById(`stat${d}Detail`);
-    if (titleEl) titleEl.textContent = r.title;
-    if (detailEl) detailEl.innerHTML = r.detail;
+
+    titleEl.textContent = r.title;
+    detailEl.innerHTML = r.detail;
+
+    // FORCE details closed on open
+    detailEl.style.display = "none";
   });
 };
 
