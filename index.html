@@ -133,6 +133,23 @@ header, #dateStrip, #actionZone {
 .statRow { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #ddd; }
 .statRow:last-child { border-bottom:none; }
 
+/* --------- SVG donut styles --------- */
+#obsChartSvg {
+  display: block;
+  margin: 8px auto;
+  width: 220px;
+  height: 220px;
+}
+#obsChartSvg circle {
+  fill: none;
+  stroke-width: 20;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 700ms ease;
+}
+#arcEasy { stroke: #4CAF50; }
+#arcMedium { stroke: #03A9F4; }
+#arcHard { stroke: #F44336; }
+
 /* small responsive tweaks */
 @media (min-width:900px){
   #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
@@ -172,7 +189,20 @@ header, #dateStrip, #actionZone {
   <section id="observationPanel" aria-hidden="true">
     <h3>Observation</h3>
     <p id="obsSummary"></p>
-    <canvas id="obsChart" width="200" height="200" aria-label="Observation chart"></canvas>
+
+    <!-- SVG donut (replaces canvas) -->
+    <svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
+      <!-- rotate group so 0% starts at top -->
+      <g transform="rotate(-90 110 110)">
+        <circle id="arcEasy"   cx="110" cy="110" r="80" />
+        <circle id="arcMedium" cx="110" cy="110" r="80" />
+        <circle id="arcHard"   cx="110" cy="110" r="80" />
+      </g>
+
+      <text id="chartPercent" x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">0%</text>
+      <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
+    </svg>
+
     <p id="obsInsight"></p>
     <p id="weeklyInsight"></p>
   </section>
@@ -199,7 +229,6 @@ header, #dateStrip, #actionZone {
 
 </div>
 
-<!-- script must be inside body and before closing body -->
 <script>
 const STORAGE_KEY = "daily-focus-data";
 
@@ -211,11 +240,11 @@ let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDat
 const today = getToday();
 data.activeDate = today;
 if (!data.days[today]) data.days[today] = [];
-save(); // function declaration is hoisted
+save(); // uses function below (hoisted)
 
 document.getElementById("fullDate").textContent = new Date(today).toDateString();
 
-/* Difficulty */
+/* Difficulty selector */
 let selectedDifficulty = 1;
 document.querySelectorAll(".diff-btn").forEach(b=>{
   b.onclick=()=>{
@@ -255,7 +284,7 @@ function selectDate(date){
   render();
 }
 
-/* Tasks */
+/* Tasks rendering */
 function renderTasks(){
   const list = document.getElementById("taskList");
   list.innerHTML = "";
@@ -314,7 +343,6 @@ function renderTasks(){
 }
 
 function toggleTask(i){
-  // toggle item in the active date (not always today)
   const day = data.activeDate;
   if (!data.days[day] || !data.days[day][i]) return;
   const t = data.days[day][i];
@@ -407,6 +435,7 @@ function evaluateFinalInsight() {
   return "";
 }
 
+/* RENDER OBSERVATION -> uses SVG donut */
 function renderObservation(){
   const tasks = data.days[data.activeDate] || [];
   let completed = 0, missed = 0;
@@ -417,7 +446,7 @@ function renderObservation(){
   });
 
   document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
-  drawPieChart(completed, missed);
+  drawSvgDonut(completed, missed);
 
   let dailyInsight = "";
   if (completed === 0 && missed > 0) {
@@ -433,63 +462,73 @@ function renderObservation(){
   document.getElementById("weeklyInsight").textContent = evaluateFinalInsight();
 }
 
-function drawPieChart(completed, missed) {
-  const c = document.getElementById("obsChart");
-  if (!c) return;
-  const ctx = c.getContext("2d");
+/* SVG donut drawing function */
+function drawSvgDonut(completed, missed) {
+  const svg = document.getElementById("obsChartSvg");
+  if (!svg) return;
 
-  const total = completed + missed;
-  ctx.clearRect(0, 0, c.width, c.height);
-  if (!total) return;
-
-  const cx = c.width / 2;
-  const cy = c.height / 2;
-  const outerR = Math.min(cx, cy) - 6;
-  const innerR = outerR * 0.4;
-  const gap = 0.04;
-  const lift = 6;
-  let startAngle = -Math.PI / 2;
-
-  const slices = [
-    { label: "Completed", value: completed, base: "#2e7d32", dark: "#1b5e20" },
-    { label: "Missed", value: missed, base: "#b71c1c", dark: "#7f0000" }
-  ];
-
-  const dominant = completed >= missed ? "Completed" : "Missed";
-
-  slices.forEach(slice => {
-    if (slice.value === 0) return;
-    const angle = (slice.value / total) * Math.PI * 2 - gap;
-    const mid = startAngle + angle / 2;
-    const offset = slice.label === dominant ? lift : 0;
-    const ox = Math.cos(mid) * offset;
-    const oy = Math.sin(mid) * offset;
-
-    // radial gradient for subtle depth
-    const grad = ctx.createRadialGradient(cx+ox, cy+oy, innerR, cx+ox, cy+oy, outerR);
-    grad.addColorStop(0, slice.base);
-    grad.addColorStop(1, slice.dark);
-
-    ctx.beginPath();
-    ctx.arc(cx + ox, cy + oy, outerR, startAngle, startAngle + angle);
-    ctx.arc(cx + ox, cy + oy, innerR, startAngle + angle, startAngle, true);
-    ctx.closePath();
-
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    startAngle += angle + gap;
+  // Count completed tasks by difficulty (weighted)
+  const tasks = data.days[data.activeDate] || [];
+  const weight = {1:1, 2:2, 3:3}; // adjust weights if you have specific system
+  let easy=0, medium=0, hard=0;
+  tasks.forEach(t => {
+    if (!t.completed) return;
+    const w = weight[t.difficulty] || 1;
+    if (t.difficulty === 1) easy += w;
+    else if (t.difficulty === 2) medium += w;
+    else hard += w;
   });
 
-  // center text
-  const percent = Math.round((completed / total) * 100);
-  ctx.fillStyle = "#222";
-  ctx.font = "600 16px system-ui";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(`${percent}%`, cx, cy - 6);
-  ctx.font = "12px system-ui";
-  ctx.fillText("Completed", cx, cy + 10);
+  const sum = easy + medium + hard;
+  const percent = (completed + missed) ? Math.round((completed / (completed + missed)) * 100) : 0;
+  document.getElementById("chartPercent").textContent = `${percent}%`;
+
+  const arcEasy = document.getElementById("arcEasy");
+  const arcMedium = document.getElementById("arcMedium");
+  const arcHard = document.getElementById("arcHard");
+
+  // radius must match SVG circle r
+  const r = 80;
+  const C = 2 * Math.PI * r;
+
+  // prepare circles
+  [arcEasy, arcMedium, arcHard].forEach(c => {
+    if (!c) return;
+    c.style.transition = "stroke-dashoffset 700ms ease";
+    c.setAttribute("stroke-dasharray", `${C} ${C}`);
+    // start from zero (hidden)
+    c.style.strokeDashoffset = C;
+  });
+
+  if (!sum) {
+    // nothing completed — keep circles hidden
+    return;
+  }
+
+  // compute lengths
+  const lenEasy = (easy / sum) * C;
+  const lenMedium = (medium / sum) * C;
+  const lenHard = (hard / sum) * C;
+
+  // target offsets (place arcs in sequence easy -> medium -> hard)
+  const targetEasy = C - lenEasy;
+  const targetMedium = C - lenEasy - lenMedium;
+  const targetHard = C - lenEasy - lenMedium - lenHard;
+
+  // set dasharray per arc to clip lengths (so only segment visible)
+  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
+  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
+  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
+
+  // small timeout to ensure transition from initial value runs
+  requestAnimationFrame(() => {
+    // also use another rAF to be safe on some browsers
+    requestAnimationFrame(() => {
+      arcEasy.style.strokeDashoffset = targetEasy;
+      arcMedium.style.strokeDashoffset = targetMedium;
+      arcHard.style.strokeDashoffset = targetHard;
+    });
+  });
 }
 
 /* Statistics helpers */
@@ -517,7 +556,6 @@ function toggleStatDetail(d){
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-/* Panels handlers */
 /* Panels handlers (TOGGLE SAFE) */
 
 // Observation toggle
@@ -597,7 +635,7 @@ function render(){
   syncToday();
   renderDateStrip();
   renderTasks();
-  closePanels(); // ensure panels are hidden by default
+  closePanels(); // keep panels hidden by default
 }
 
 render();
