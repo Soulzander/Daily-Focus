@@ -240,8 +240,7 @@ header, #dateStrip, #actionZone {
 /* Panels */
 #observationPanel,
 #statsPanel {
-  padding: 8px;
-  display: none;
+  color: #0e1320;
 }
 
 /* Stats */
@@ -362,10 +361,9 @@ header, #dateStrip, #actionZone {
 
 /* ===== Contrast Anchor Layer ===== */
 #contentAnchor {
-  background: rgba(12, 16, 32, 0.22); /* deep blue-gray */
+  background: rgba(255, 255, 255, 0.18); /* neutral light veil */
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-
   border-radius: 18px;
   margin: 8px;
   padding: 6px;
@@ -428,10 +426,16 @@ header, #dateStrip, #actionZone {
 
 </section>
 
-<div id="viewContainer">
+<div id="contentAnchor">
   <main id="taskList"></main>
-  <section id="observationPanel"></section>
-  <section id="statsPanel"></section>
+
+  <section id="observationPanel">
+    ...
+  </section>
+
+  <section id="statsPanel">
+    ...
+  </section>
 </div>
 
 <script>
