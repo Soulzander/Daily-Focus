@@ -707,50 +707,65 @@ function renderWeeklyInsight() {
   document.getElementById("weeklyInsight").textContent = weeklyMessage;
 }
   
-function drawPieChart(completed, missed){
-  const c=document.getElementById("obsChart");
-  const ctx=c.getContext("2d");
+function drawPieChart(completed, missed) {
+  const c = document.getElementById("obsChart");
+  const ctx = c.getContext("2d");
+
   const total = completed + missed;
-ctx.clearRect(0, 0, c.width, c.height);
-if (!total) return;
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (!total) return;
 
-const GAP = 0.04; // slice separation
-let start = 0;
+  const cx = 100;
+  const cy = 100;
+  const radius = 80;
 
-const g = (completed / total) * Math.PI * 2;
-const completedColor = "rgba(46, 125, 50, 0.85)";
-const missedColor = "rgba(198, 40, 40, 0.85)";
+  const gap = 0.04;        // angular gap between slices
+  const depth = 4;         // fake 3D depth
 
-// Completed slice
-ctx.fillStyle = completedColor;
-ctx.beginPath();
-ctx.moveTo(100, 100);
-ctx.arc(
-  100,
-  100,
-  80,
-  start + GAP / 2,
-  start + g - GAP / 2
-);
-ctx.fill();
+  let startAngle = -Math.PI / 2;
 
-start += g;
+  const slices = [
+    { value: completed, color: "#2e7d32", shadow: "#1b5e20" },
+    { value: missed,    color: "#b71c1c", shadow: "#7f0000" }
+  ];
 
-// Missed slice
-const r = (missed / total) * Math.PI * 2;
-ctx.fillStyle = missedColor;
-ctx.beginPath();
-ctx.moveTo(100, 100);
-ctx.arc(
-  100,
-  100,
-  80,
-  start + GAP / 2,
-  start + r - GAP / 2
-);
-ctx.fill();
+  slices.forEach(slice => {
+    if (slice.value === 0) return;
+
+    const angle = (slice.value / total) * Math.PI * 2 - gap;
+
+    /* ---- depth layer (shadow) ---- */
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + depth);
+    ctx.arc(
+      cx,
+      cy + depth,
+      radius,
+      startAngle,
+      startAngle + angle
+    );
+    ctx.closePath();
+    ctx.fillStyle = slice.shadow;
+    ctx.fill();
+
+    /* ---- main slice ---- */
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(
+      cx,
+      cy,
+      radius,
+      startAngle,
+      startAngle + angle
+    );
+    ctx.closePath();
+    ctx.fillStyle = slice.color;
+    ctx.fill();
+
+    startAngle += angle + gap;
+  });
 }
-
+  
 /* Statistics helpers */
 function getDaySummary(dateStr){
   const t=data.days[dateStr]||[];
