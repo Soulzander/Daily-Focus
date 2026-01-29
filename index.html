@@ -1,89 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Daily Focus — Fixed</title>
+<meta charset="UTF-8">
+<title>Daily Focus</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-  :root{
-    --bg1:#7E97FF; --bg2:#5f63b8; --bg3:#1537b3;
-    --text:#0e1320;
-  }
-  html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
-  body{
-    display:flex;flex-direction:column;height:100vh;
-    background: radial-gradient(circle at top left,var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 100%);
-    color:var(--text);
-  }
+/* ---------- layout & theme ---------- */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 
-  header { padding:12px; z-index:5; position:relative; }
-  h2{ margin:8px 0 4px 0; font-size:32px; }
-  p#fullDate{ margin:0 0 8px 0; opacity:.95; }
+  background: radial-gradient(
+    circle at top left,
+    #7E97FF 0%,
+    #5f63b8 45%,
+    #1537b3 100%
+  );
+}
 
-  /* DATE STRIP on top so clicks reach it */
-  #dateStrip {
-    display:flex; gap:10px; overflow-x:auto; padding:8px 12px 6px 12px;
-    position:relative; z-index:4; -webkit-overflow-scrolling:touch;
-  }
-  #dateStrip::-webkit-scrollbar{ display:none; }
+/* Header + zones */
+header, #dateStrip, #actionZone {
+  padding: 8px;
+}
 
-  /* date items are accessible buttons */
-  .date-item{
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:100px; padding:10px;border-radius:12px;
-    background:rgba(255,255,255,0.45); border:1px solid rgba(255,255,255,0.35);
-    cursor:pointer; user-select:none;
-  }
-  .date-item.active{ background:#222; color:#fff; }
-  .date-item:focus { outline: 3px solid rgba(0,0,0,0.12); outline-offset:2px; }
+/* Date strip (scrollable last 7 days) */
+#dateStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 6px;
+}
+#dateStrip::-webkit-scrollbar { display: none; }
 
-  #actionZone{ padding:12px; background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); z-index:3; position:relative; border-bottom:1px solid rgba(255,255,255,0.45); }
+.date-item {
+  min-width: 90px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.date-item.active {
+  background: #222;
+  color: white;
+}
 
-  #newTaskInput{ width:100%; height:52px; padding:12px;border-radius:12px;border:1px solid #ddd; box-sizing:border-box; font-size:16px; background:rgba(255,255,255,0.9); }
+#actionZone {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+}
 
-  #difficultySelector{ display:flex; gap:8px; margin-top:8px; }
-  .diff-btn{ flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.08); background:rgba(255,255,255,0.5); cursor:pointer; }
-  .diff-btn.active{ background:#222;color:#fff; }
+/* content anchor: make it take remaining height and scroll */
+#contentAnchor {
+  flex: 1;
+  overflow: auto;
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  margin: 8px;
+  padding: 12px;
+}
 
-  #actionButtons{ display:flex; gap:10px; margin-top:12px; }
-  #actionButtons button{ flex:1; height:48px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); background:rgba(255,255,255,0.55); cursor:pointer; }
+/* Task list */
+#taskList {
+  width: 100%;
+  padding: 8px 0;
+}
 
-  /* main content holder; below the date strip and actions */
-  #contentAnchor{ flex:1; overflow:auto; margin:12px; padding:14px; border-radius:18px; background: rgba(255,255,255,0.06); position:relative; z-index:1; }
+/* Task row */
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.35);
+}
+.task-text { flex: 1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
 
-  /* task list */
-  #taskList{ width:100%; margin-bottom:16px; }
-  .task{ display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:12px; border-radius:12px; background: rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.35); }
-  .task-text{ flex:1; font-family:"Copperplate","Copperplate Gothic Light",serif; font-weight:500; font-size:18px; }
-  .task-check{ width:20px;height:20px; }
-  .diff-badge{ padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; margin-left:auto; }
+/* difficulty colours */
+.task.diff-1 .task-text { color: #2E7D32; }
+.task.diff-2 .task-text { color: #0277BD; }
+.task.diff-3 .task-text { color: #C62828; }
 
-  .diff-1 .task-text{ color:#2E7D32; }   /* easy green */
-  .diff-2 .task-text{ color:#0277BD; }   /* medium blue */
-  .diff-3 .task-text{ color:#C62828; }   /* hard red */
+/* completed / missed / hover */
+.task.completed { opacity: 0.75; transition: box-shadow .3s, opacity .3s; }
+.task.incomplete-today { color: #222; }
+.task.missed { color: #b71c1c; opacity: 0.8; }
+.task.clickable { cursor: pointer; }
+.task.read-only { cursor: default; }
 
-  .diff-badge.diff-1{ background:#4CAF50; color:#07210a; }
-  .diff-badge.diff-2{ background:#03A9F4; color:#012a3a; }
-  .diff-badge.diff-3{ background:#F44336; color:#3a0503; }
+.task-check { width:18px; height:18px; cursor:pointer; accent-color:#2e7d32; }
+.diff-badge {
+  margin-left:auto; padding: 2px 8px; border-radius:999px; font-weight:600; font-size:12px; line-height:1.2;
+  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.diff-badge.diff-1 { background:#4CAF50; color:#0b2e13; }
+.diff-badge.diff-2 { background:#03A9F4; color:#012a3a; }
+.diff-badge.diff-3 { background:#F44336; color:#3a0503; }
 
-  /* panels */
-  #observationPanel, #statsPanel{ margin-top:6px; padding:14px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: 0 4px 10px rgba(0,0,0,0.12); display:none; }
+/* input and controls */
+#newTaskInput {
+  width:100%; height:56px; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box;
+  background: rgba(255,255,255,0.85);
+}
+#difficultySelector { display:flex; gap:6px; margin-top:6px; }
+.diff-btn { flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; background: rgba(255,255,255,0.5); }
+.diff-btn.active { background: rgba(0,0,0,0.8); color:white; }
 
-  /* SVG ring */
-  #obsChartSvg{ width:240px; height:240px; display:block; margin: 6px auto; }
-  .ring-bg { stroke: rgba(0,0,0,0.12); opacity:0.18; }
-  .segment { stroke-linecap: round; transition: stroke-dashoffset 700ms cubic-bezier(.2,.8,.2,1); }
-  .grey-remaining { stroke: rgba(255,255,255,0.14); transition: stroke-dashoffset 700ms cubic-bezier(.2,.8,.2,1); }
+/* action buttons */
+#actionButtons { display:flex; gap:8px; margin-top:8px; }
+#actionButtons button { flex:1; height:48px; font-size:16px; border-radius:10px; background: rgba(255,255,255,0.5); }
 
-  #chartPercent { font: 600 22px system-ui; fill: #0e1320; }
-  #chartLabel  { font: 12px system-ui; fill:#0e1320; }
+/* Panels - hidden by default so they don't show on first load */
+#observationPanel, #statsPanel { display: none; color: #0e1320; }
 
-  @media (max-width:420px){
-    .task-text{ font-size:16px; }
-    #obsChartSvg{ width:200px; height:200px; }
-  }
+/* stats card */
+.statBlock { margin-top:12px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.45); cursor:pointer; }
+.statRow { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #ddd; }
+.statRow:last-child { border-bottom:none; }
+
+/* --------- SVG donut styles --------- */
+#obsChartSvg {
+  display: block;
+  margin: 8px auto;
+  width: 220px;
+  height: 220px;
+}
+#obsChartSvg circle {
+  fill: none;
+  stroke-width: 20;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 700ms ease;
+}
+#arcEasy { stroke: #4CAF50; }
+#arcMedium { stroke: #03A9F4; }
+#arcHard { stroke: #F44336; }
+
+/* small responsive tweaks */
+@media (min-width:900px){
+  #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -94,7 +167,7 @@
 <section id="dateStrip" aria-label="Date strip"></section>
 
 <section id="actionZone">
-  <input id="newTaskInput" placeholder="Add a task for today" aria-label="New task" />
+  <input id="newTaskInput" placeholder="Add a task for today" aria-label="New task">
   <div id="difficultySelector" role="tablist" aria-label="Difficulty">
     <button class="diff-btn active" data-diff="1">Easy</button>
     <button class="diff-btn" data-diff="2">Medium</button>
@@ -108,143 +181,117 @@
   </div>
 </section>
 
+<!-- single content anchor (only one set of panels) -->
 <div id="contentAnchor">
 
   <main id="taskList" aria-live="polite"></main>
 
   <section id="observationPanel" aria-hidden="true">
     <h3>Observation</h3>
-    <div id="obsSummary"></div>
+    <p id="obsSummary"></p>
 
-    <svg id="obsChartSvg" viewBox="0 0 240 240" aria-label="Completion chart">
-      <circle class="ring-bg" cx="120" cy="120" r="88" stroke-width="24" fill="none"></circle>
-      <g id="segmentsContainer"></g>
-      <circle id="remainingArc" class="grey-remaining" cx="120" cy="120" r="88" stroke-width="24" fill="none" transform="rotate(-90 120 120)"></circle>
-      <text id="chartPercent" x="120" y="112" text-anchor="middle">0%</text>
-      <text id="chartLabel" x="120" y="132" text-anchor="middle">Completed</text>
+    <!-- SVG donut (replaces canvas) -->
+    <svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
+      <!-- rotate group so 0% starts at top -->
+      <g transform="rotate(-90 110 110)">
+        <circle id="arcEasy"   cx="110" cy="110" r="80" />
+        <circle id="arcMedium" cx="110" cy="110" r="80" />
+        <circle id="arcHard"   cx="110" cy="110" r="80" />
+      </g>
+
+      <text id="chartPercent" x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">0%</text>
+      <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
     </svg>
 
-    <div id="obsInsight" style="margin-top:8px;"></div>
-    <div id="weeklyInsight" style="margin-top:8px;"></div>
+    <p id="obsInsight"></p>
+    <p id="weeklyInsight"></p>
   </section>
 
   <section id="statsPanel" aria-hidden="true">
     <h3>Statistics</h3>
+
     <div class="statBlock" onclick="toggleStatDetail(7)">
       <div class="statTitle" id="stat7Title"></div>
       <div class="statDetail" id="stat7Detail"></div>
     </div>
+
     <div class="statBlock" onclick="toggleStatDetail(14)">
       <div class="statTitle" id="stat14Title"></div>
       <div class="statDetail" id="stat14Detail"></div>
     </div>
+
     <div class="statBlock" onclick="toggleStatDetail(30)">
       <div class="statTitle" id="stat30Title"></div>
       <div class="statDetail" id="stat30Detail"></div>
     </div>
+
   </section>
 
 </div>
 
 <script>
-/* ========== STORAGE + MERGE FIX ========== */
-const LEGACY_KEY = "daily-focus-data";           // old key (your earlier versions)
-const STORAGE_KEY = "daily-focus-data-v2";       // new key used here
+const STORAGE_KEY = "daily-focus-data";
 
-function safeParse(s){
-  try{ return s ? JSON.parse(s) : null; } catch(e){ return null; }
+function getToday() {
+  return new Date().toISOString().split("T")[0];
 }
 
-// load or merge data from legacy key if present
-let storedNew = safeParse(localStorage.getItem(STORAGE_KEY));
-let storedLegacy = safeParse(localStorage.getItem(LEGACY_KEY));
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDate:getToday() };
+const today = getToday();
+data.activeDate = today;
+if (!data.days[today]) data.days[today] = [];
+save(); // uses function below (hoisted)
 
-let data;
-if (storedNew && typeof storedNew === "object") {
-  data = storedNew;
-  // if legacy exists, merge days that are not present in new (don't overwrite)
-  if (storedLegacy && storedLegacy.days) {
-    data.days = data.days || {};
-    Object.keys(storedLegacy.days).forEach(k=>{
-      if (!data.days[k]) data.days[k] = storedLegacy.days[k];
-    });
-  }
-} else if (storedLegacy && typeof storedLegacy === "object") {
-  // migrate legacy to new key if new missing
-  data = storedLegacy;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-} else {
-  data = { days: {}, activeDate: null };
-}
+document.getElementById("fullDate").textContent = new Date(today).toDateString();
 
-function getToday(){ return new Date().toISOString().split("T")[0]; }
-data.activeDate = data.activeDate || getToday();
-if (!data.days) data.days = {};
-if (!data.days[getToday()]) data.days[getToday()] = [];  // ensure today's array exists
-
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-
-// persist once after migration/initialization
-save();
-
-/* ========== UI & logic (unchanged behavior but safer event attachment) ========== */
-const WEIGHTS = {1:1,2:2,3:3};
-const SEG_COLORS = {1:"#2E7D32",2:"#03A9F4",3:"#F44336"};
-
+/* Difficulty selector */
 let selectedDifficulty = 1;
-document.getElementById("fullDate").textContent = new Date(data.activeDate).toDateString();
-
-/* difficulty buttons */
 document.querySelectorAll(".diff-btn").forEach(b=>{
-  b.addEventListener("click", ()=>{
+  b.onclick=()=>{
     document.querySelectorAll(".diff-btn").forEach(x=>x.classList.remove("active"));
     b.classList.add("active");
     selectedDifficulty = Number(b.dataset.diff);
-  });
+  };
 });
 
-/* date strip rendering — use buttons and keyboard support */
-function renderDateStrip(){
+/* Dates */
+function renderDateStrip() {
   const strip = document.getElementById("dateStrip");
   strip.innerHTML = "";
-  for (let i=0;i<7;i++){
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const key = d.toISOString().split("T")[0];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split("T")[0];
+
     const item = document.createElement("div");
     item.className = "date-item";
-    item.tabIndex = 0;               // make focusable
-    item.setAttribute("role","button");
-    item.setAttribute("data-key", key);
-    item.textContent = d.toLocaleDateString(undefined,{ day:"numeric", month:"short" });
-    if (key === data.activeDate) item.classList.add("active");
-
-    // click handler
-    item.addEventListener("click", () => {
-      data.activeDate = key;
-      save();
-      render();
+    item.textContent = d.toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short"
     });
 
-    // keyboard (Enter/Space)
-    item.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        item.click();
-      }
-    });
-
+    if (ds === data.activeDate) item.classList.add("active");
+    item.onclick = () => selectDate(ds);
     strip.appendChild(item);
   }
 }
 
-/* tasks list */
+function selectDate(date){
+  closePanels();
+  data.activeDate = date;
+  save();
+  render();
+}
+
+/* Tasks rendering */
 function renderTasks(){
   const list = document.getElementById("taskList");
   list.innerHTML = "";
   const tasks = data.days[data.activeDate] || [];
-  const isToday = data.activeDate === getToday();
+  const isToday = data.activeDate === today;
 
-  if (!tasks.length){
+  if(!tasks.length){
     const p = document.createElement("div");
     p.textContent = "No tasks.";
     p.style.opacity = "0.8";
@@ -252,143 +299,247 @@ function renderTasks(){
     return;
   }
 
-  tasks.forEach((t,i)=>{
+  tasks.forEach((t, i) => {
     const row = document.createElement("div");
-    row.className = "task diff-" + (t.difficulty || 1);
+    row.className = "task";
 
-    const cb = document.createElement("input");
-    cb.type = "checkbox"; cb.className="task-check";
-    cb.checked = !!t.completed; cb.disabled = !isToday;
-    cb.addEventListener("click", (ev)=> { ev.stopPropagation(); toggleTask(i); });
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "task-check";
+    checkbox.checked = !!t.completed;
+    checkbox.disabled = !isToday;
 
-    const txt = document.createElement("div"); txt.className="task-text"; txt.textContent = t.text;
+    checkbox.onclick = (e) => {
+      e.stopPropagation();
+      toggleTask(i);
+    };
 
-    const badge = document.createElement("div"); badge.className = "diff-badge diff-" + (t.difficulty || 1);
-    badge.textContent = t.difficulty==1 ? "Easy" : t.difficulty==2 ? "Medium" : "Hard";
+    const label = document.createElement("span");
+    label.className = "task-text";
+    label.textContent = t.text;
 
-    row.appendChild(cb); row.appendChild(txt); row.appendChild(badge);
+    const badge = document.createElement("span");
+    badge.className = `diff-badge diff-${t.difficulty}`;
+    badge.textContent =
+      t.difficulty === 1 ? "Easy" :
+      t.difficulty === 2 ? "Medium" : "Hard";
+
+    row.classList.add(`diff-${t.difficulty}`);
+    row.append(checkbox, label, badge);
 
     if (t.completed) row.classList.add("completed");
     else if (!isToday) row.classList.add("missed");
     else row.classList.add("incomplete-today");
 
-    if (isToday){
-      row.addEventListener("click", ()=> toggleTask(i));
+    if (isToday) {
       row.classList.add("clickable");
+      row.onclick = () => toggleTask(i);
+    } else {
+      row.classList.add("read-only");
     }
 
     list.appendChild(row);
   });
 }
 
-function toggleTask(index){
-  const arr = data.days[data.activeDate] || [];
-  if (!arr[index]) return;
-  arr[index].completed = !arr[index].completed;
+function toggleTask(i){
+  const day = data.activeDate;
+  if (!data.days[day] || !data.days[day][i]) return;
+  const t = data.days[day][i];
+  t.completed = !t.completed;
   save();
   renderTasks();
 }
 
-document.getElementById("addTaskBtn").addEventListener("click", ()=>{
-  if (data.activeDate !== getToday()) return;
+document.getElementById("addTaskBtn").onclick = () => {
+  if (data.activeDate !== today) return;
   const inp = document.getElementById("newTaskInput");
   if (!inp.value.trim()) return;
-  data.days[getToday()].push({ text: inp.value.trim(), completed: false, difficulty: selectedDifficulty });
-  inp.value = "";
-  save(); renderTasks();
-});
-
-/* observation svg drawing (keeps behavior from previous version) */
-function getAssignedWeightsForDay(dateKey){
-  const tasks = data.days[dateKey] || [];
-  let total = 0;
-  const byDiff = {1:0,2:0,3:0};
-  const completedByDiff = {1:0,2:0,3:0};
-  tasks.forEach(t=>{
-    const w = WEIGHTS[t.difficulty||1] || 1;
-    byDiff[t.difficulty||1] += w;
-    total += w;
-    if (t.completed) completedByDiff[t.difficulty||1] += w;
+  data.days[today].push({
+    text: inp.value.trim(),
+    completed: false,
+    difficulty: selectedDifficulty
   });
-  return { total, byDiff, completedByDiff };
+  inp.value = "";
+  save();
+  renderTasks();
+};
+
+/* Observation helpers */
+function getRecentDates(days) {
+  const dates = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+  return dates;
 }
 
-function drawSvgSegments(){
-  const info = getAssignedWeightsForDay(data.activeDate);
-  const W = info.total || 0;
-  const completedTotal = (info.completedByDiff[1]||0) + (info.completedByDiff[2]||0) + (info.completedByDiff[3]||0);
-  const percent = W ? Math.round((completedTotal / W) * 100) : 0;
+function analyzeBehavior() {
+  const dates = getRecentDates(7);
+  let assigned = 0, completed = 0;
+  const taskStats = {};
 
-  const txt = document.getElementById("chartPercent");
-  if (txt) txt.textContent = `${percent}%`;
+  dates.forEach(date => {
+    (data.days[date] || []).forEach(t => {
+      const w = t.difficulty || 1;
+      assigned += w;
+      if (t.completed) completed += w;
 
-  const r = 88;
-  const C = 2 * Math.PI * r;
-  const remainingEl = document.getElementById("remainingArc");
-  if (remainingEl) {
-    const remainingFraction = Math.max(0, W ? (W - completedTotal) / W : 1);
-    remainingEl.style.strokeDasharray = `${C * remainingFraction} ${C}`;
-    const remainingOffset = C * (1 - (completedTotal / (W || 1)));
-    requestAnimationFrame(()=> remainingEl.style.strokeDashoffset = remainingOffset );
+      if (!taskStats[t.text]) taskStats[t.text] = { completed: 0, missed: 0 };
+      t.completed ? taskStats[t.text].completed++ : taskStats[t.text].missed++;
+    });
+  });
+
+  if (assigned >= 5 && completed / assigned < 0.5) {
+    return "You seem to be taking on more than you can sustain right now. Consider reducing task volume or difficulty.";
   }
 
-  const container = document.getElementById("segmentsContainer");
-  container.innerHTML = "";
-  if (!W || completedTotal === 0) {
-    if (remainingEl) remainingEl.style.opacity = "1";
+  for (const [task, stat] of Object.entries(taskStats)) {
+    if (stat.missed >= 3 && stat.missed > stat.completed) {
+      return `“${task}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
+    }
+  }
+
+  if (assigned > 0 && completed / assigned >= 0.8) {
+    return "Your workload and completion feel well balanced lately.";
+  }
+
+  return "";
+}
+
+const INSIGHT_KEY = "df_last_insight";
+
+function canShowInsight(message) {
+  if (!message) return false;
+  const last = JSON.parse(localStorage.getItem(INSIGHT_KEY));
+  const now = Date.now();
+  if (!last) return true;
+  const sameMessage = last.message === message;
+  const withinCooldown = now - last.time < 48 * 60 * 60 * 1000;
+  return !(sameMessage && withinCooldown);
+}
+
+function saveInsight(message) {
+  localStorage.setItem(INSIGHT_KEY, JSON.stringify({ message, time: Date.now() }));
+}
+
+function evaluateFinalInsight() {
+  const behaviorMessage = analyzeBehavior();
+  if (!behaviorMessage) return "";
+  if (canShowInsight(behaviorMessage)) {
+    saveInsight(behaviorMessage);
+    return behaviorMessage;
+  }
+  return "";
+}
+
+/* RENDER OBSERVATION -> uses SVG donut */
+function renderObservation(){
+  const tasks = data.days[data.activeDate] || [];
+  let completed = 0, missed = 0;
+  tasks.forEach(t=>{
+    const w = t.difficulty || 1;
+    if (t.completed) completed += w;
+    else missed += w;
+  });
+
+  document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
+  drawSvgDonut(completed, missed);
+
+  let dailyInsight = "";
+  if (completed === 0 && missed > 0) {
+    dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
+  } else if (completed > 0 && missed === 0) {
+    dailyInsight = "You completed everything you planned today. Effort balance looks good.";
+  } else if (completed >= missed) {
+    dailyInsight = "More effort was completed than missed. Consistency is forming.";
+  } else {
+    dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
+  }
+  document.getElementById("obsInsight").textContent = dailyInsight;
+  document.getElementById("weeklyInsight").textContent = evaluateFinalInsight();
+}
+
+/* SVG donut drawing function */
+function drawSvgDonut(completed, missed) {
+  const svg = document.getElementById("obsChartSvg");
+  if (!svg) return;
+
+  // Count completed tasks by difficulty (weighted)
+  const tasks = data.days[data.activeDate] || [];
+  const weight = {1:1, 2:2, 3:3}; // adjust weights if you have specific system
+  let easy=0, medium=0, hard=0;
+  tasks.forEach(t => {
+    if (!t.completed) return;
+    const w = weight[t.difficulty] || 1;
+    if (t.difficulty === 1) easy += w;
+    else if (t.difficulty === 2) medium += w;
+    else hard += w;
+  });
+
+  const sum = easy + medium + hard;
+  const percent = (completed + missed) ? Math.round((completed / (completed + missed)) * 100) : 0;
+  document.getElementById("chartPercent").textContent = `${percent}%`;
+
+  const arcEasy = document.getElementById("arcEasy");
+  const arcMedium = document.getElementById("arcMedium");
+  const arcHard = document.getElementById("arcHard");
+
+  // radius must match SVG circle r
+  const r = 80;
+  const C = 2 * Math.PI * r;
+
+  // prepare circles
+  [arcEasy, arcMedium, arcHard].forEach(c => {
+    if (!c) return;
+    c.style.transition = "stroke-dashoffset 700ms ease";
+    c.setAttribute("stroke-dasharray", `${C} ${C}`);
+    // start from zero (hidden)
+    c.style.strokeDashoffset = C;
+  });
+
+  if (!sum) {
+    // nothing completed — keep circles hidden
     return;
   }
 
-  const seq = [1,2,3];
-  let cum = 0;
-  seq.forEach(diff=>{
-    const wComp = info.completedByDiff[diff] || 0;
-    if (wComp <= 0) return;
-    const frac = wComp / W;
-    const segLen = C * frac;
-    const seg = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    seg.setAttribute("cx","120"); seg.setAttribute("cy","120"); seg.setAttribute("r", String(r));
-    seg.setAttribute("stroke-width","24"); seg.setAttribute("fill","none");
-    seg.setAttribute("transform","rotate(-90 120 120)");
-    seg.setAttribute("stroke", SEG_COLORS[diff] || "#999");
-    seg.style.strokeDasharray = `${segLen} ${C}`;
-    seg.style.strokeDashoffset = String(C);
-    container.appendChild(seg);
-    const desired = C * (1 - (cum + frac));
-    requestAnimationFrame(()=> seg.style.strokeDashoffset = String(desired));
-    cum += frac;
+  // compute lengths
+  const lenEasy = (easy / sum) * C;
+  const lenMedium = (medium / sum) * C;
+  const lenHard = (hard / sum) * C;
+
+  // target offsets (place arcs in sequence easy -> medium -> hard)
+  const targetEasy = C - lenEasy;
+  const targetMedium = C - lenEasy - lenMedium;
+  const targetHard = C - lenEasy - lenMedium - lenHard;
+
+  // set dasharray per arc to clip lengths (so only segment visible)
+  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
+  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
+  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
+
+  // small timeout to ensure transition from initial value runs
+  requestAnimationFrame(() => {
+    // also use another rAF to be safe on some browsers
+    requestAnimationFrame(() => {
+      arcEasy.style.strokeDashoffset = targetEasy;
+      arcMedium.style.strokeDashoffset = targetMedium;
+      arcHard.style.strokeDashoffset = targetHard;
+    });
   });
-
-  if (remainingEl) remainingEl.style.opacity = (completedTotal === W ? "0" : "1");
 }
 
-/* observation render */
-function renderObservation(){
-  const info = getAssignedWeightsForDay(data.activeDate);
-  let completed=0; Object.values(info.completedByDiff).forEach(v=> completed += (v||0));
-  const missed = Math.max(0, (info.total||0) - completed);
-  document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
-  drawSvgSegments();
-
-  let dailyInsight = "";
-  if (completed === 0 && missed > 0) dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
-  else if (completed > 0 && missed === 0) dailyInsight = "You completed everything you planned today. Effort balance looks good.";
-  else if (completed >= missed) dailyInsight = "More effort was completed than missed. Consistency is forming.";
-  else dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
-
-  document.getElementById("obsInsight").textContent = dailyInsight;
-  // weekly insight (basic)
-  document.getElementById("weeklyInsight").textContent = ""; // leave blank or implement as desired
-}
-
-/* statistics helpers (unchanged) */
+/* Statistics helpers */
 function getDaySummary(dateStr){
   const t = data.days[dateStr] || [];
   return { assigned: t.length, completed: t.filter(x=>x.completed).length };
 }
+
 function buildStat(days){
-  let completed=0, assigned=0, html="";
-  for (let i=0;i<days;i++){
+  let completed = 0, assigned = 0, html = "";
+  for (let i=0; i<days; i++){
     const d = new Date(); d.setDate(d.getDate()-i);
     const ds = d.toISOString().split("T")[0];
     const s = getDaySummary(ds);
@@ -396,62 +547,97 @@ function buildStat(days){
     completed += s.completed;
     html += `<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
-  return { title: `Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
+  return { title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
 }
-function toggleStatDetail(d){ const el = document.getElementById(`stat${d}Detail`); if(!el) return; el.style.display = el.style.display === "block" ? "none" : "block"; }
 
-/* panels toggle (safe) */
-document.getElementById("observeBtn").addEventListener("click", ()=>{
+function toggleStatDetail(d){
+  const el = document.getElementById(`stat${d}Detail`);
+  if (!el) return;
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+/* Panels handlers (TOGGLE SAFE) */
+
+// Observation toggle
+document.getElementById("observeBtn").onclick = () => {
   const panel = document.getElementById("observationPanel");
   const taskList = document.getElementById("taskList");
+
   const isOpen = window.getComputedStyle(panel).display !== "none";
-  if (isOpen){ closePanels(); return; }
+
+  if (isOpen) {
+    closePanels(); // close & show tasks
+    return;
+  }
+
   closePanels();
   taskList.style.display = "none";
-  panel.style.display = "block"; panel.setAttribute("aria-hidden","false");
+  panel.style.display = "block";
   renderObservation();
-});
-document.getElementById("statsBtn").addEventListener("click", ()=>{
+};
+
+// Statistics toggle
+document.getElementById("statsBtn").onclick = () => {
   const panel = document.getElementById("statsPanel");
   const taskList = document.getElementById("taskList");
+
   const isOpen = window.getComputedStyle(panel).display !== "none";
-  if (isOpen){ closePanels(); return; }
+
+  if (isOpen) {
+    closePanels(); // close & show tasks
+    return;
+  }
+
   closePanels();
   taskList.style.display = "none";
-  panel.style.display = "block"; panel.setAttribute("aria-hidden","false");
-  [7,14,30].forEach(d=>{
+  panel.style.display = "block";
+
+  [7, 14, 30].forEach(d => {
     const r = buildStat(d);
-    document.getElementById(`stat${d}Title`).textContent = r.title;
-    document.getElementById(`stat${d}Detail`).innerHTML = r.detail;
-    document.getElementById(`stat${d}Detail`).style.display = "none";
+    const titleEl = document.getElementById(`stat${d}Title`);
+    const detailEl = document.getElementById(`stat${d}Detail`);
+
+    titleEl.textContent = r.title;
+    detailEl.innerHTML = r.detail;
+
+    // FORCE details closed on open
+    detailEl.style.display = "none";
   });
-});
+};
+
 function closePanels(){
-  const taskList = document.getElementById("taskList"); if (taskList) taskList.style.display = "block";
-  const obs = document.getElementById("observationPanel"); const sp = document.getElementById("statsPanel");
+  const taskListEl = document.getElementById("taskList");
+  if (taskListEl) taskListEl.style.display = "block";
+
+  const obs = document.getElementById("observationPanel");
+  const sp = document.getElementById("statsPanel");
   if (obs) { obs.style.display = "none"; obs.setAttribute("aria-hidden","true"); }
   if (sp) { sp.style.display = "none"; sp.setAttribute("aria-hidden","true"); }
 }
 
-/* sync/render */
-function syncToday(){
-  const real = getToday();
-  if (data.activeDate === real) return;
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+function syncToday() {
+  const realToday = getToday();
+  if (data.activeDate === realToday) return;
   if (!data.days[data.activeDate]) {
-    data.activeDate = real;
-    if (!data.days[real]) data.days[real] = [];
+    data.activeDate = realToday;
+    if (!data.days[realToday]) data.days[realToday] = [];
     save();
   }
 }
-document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) render(); });
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) render();
+});
 
 function render(){
   syncToday();
   renderDateStrip();
   renderTasks();
-  closePanels();
-  document.getElementById("fullDate").textContent = new Date(data.activeDate).toDateString();
+  closePanels(); // keep panels hidden by default
 }
+
 render();
 </script>
 </body>
