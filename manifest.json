@@ -1,18 +1,21 @@
 {
   "name": "Daily Focus",
-  "short_name": "DailyFocus",
-  "start_url": ".",
+  "short_name": "Daily Focus",
+  "description": "A daily task and focus tracking app with observation insights.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#bdc3c7",
+  "theme_color": "#7E97FF",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
