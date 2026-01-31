@@ -429,49 +429,55 @@ function evaluateFinalInsight() {
 
 /* drawSvgDonut: single continuous ring, start at 12 o'clock, animated */
 function drawSvgDonut(completed, missed) {
-  const ring = document.getElementById("progressRing");
-  const percentText = document.getElementById("chartPercent");
-  if (!ring || !percentText) return;
+  const arcEasy   = document.getElementById("arcEasy");
+  const arcMedium = document.getElementById("arcMedium");
+  const arcHard   = document.getElementById("arcHard");
+  const percentEl = document.getElementById("chartPercent");
 
-  const total = completed + missed;
-  const percent = total ? Math.round((completed / total) * 100) : 0;
-  percentText.textContent = percent + "%";
+  if (!arcEasy || !arcMedium || !arcHard || !percentEl) return;
 
-  // choose color by which difficulty dominates in *completed* effort
-  // compute completed weight per difficulty
-  let easyC = 0, medC = 0, hardC = 0;
-  const tasks = data.days[data.activeDate] || [];
-  tasks.forEach(t => {
-    const w = t.difficulty || 1;
-    if (t.completed) {
-      if (t.difficulty === 1) easyC += w;
-      else if (t.difficulty === 2) medC += w;
-      else hardC += w;
-    }
+  let easy = 0, medium = 0, hard = 0;
+
+  (data.days[data.activeDate] || []).forEach(t => {
+    if (!t.completed) return;
+    if (t.difficulty === 1) easy++;
+    else if (t.difficulty === 2) medium++;
+    else if (t.difficulty === 3) hard++;
   });
-  let color = "#4CAF50"; // default green
-  if (medC >= easyC && medC >= hardC) color = "#03A9F4";
-  else if (hardC >= medC && hardC >= easyC) color = "#F44336";
-  ring.setAttribute("stroke", color);
 
-  // radius and circumference must match SVG r
+  const total = easy + medium + hard;
+  const percent = (completed + missed)
+    ? Math.round((completed / (completed + missed)) * 100)
+    : 0;
+
+  percentEl.textContent = `${percent}%`;
+
   const r = 80;
   const C = 2 * Math.PI * r;
 
-  // set up dasharray and animate dashoffset so progress starts at top (rotate -90 present in SVG)
-  ring.setAttribute("stroke-dasharray", String(C));
-  // initial hidden
-  ring.style.strokeDashoffset = String(C);
-
-  // compute target offset for percent
-  const progress = percent / 100;
-  const target = C * (1 - progress); // 0 -> full circle, C -> empty
-
-  // animate on next frame
-  requestAnimationFrame(() => {
-    ring.style.transition = "stroke-dashoffset 800ms cubic-bezier(.2,.9,.2,1), stroke 400ms ease";
-    ring.style.strokeDashoffset = String(target);
+  [arcEasy, arcMedium, arcHard].forEach(c => {
+    c.setAttribute("stroke-dasharray", `${C} ${C}`);
+    c.style.strokeDashoffset = C;
   });
+
+  if (!total) return;
+
+  const lenEasy   = (easy   / total) * C;
+  const lenMedium = (medium / total) * C;
+  const lenHard   = (hard   / total) * C;
+
+  let offset = C;
+
+  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
+  arcEasy.style.strokeDashoffset = offset;
+  offset -= lenEasy;
+
+  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
+  arcMedium.style.strokeDashoffset = offset;
+  offset -= lenMedium;
+
+  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
+  arcHard.style.strokeDashoffset = offset;
 }
 
 /* renderObservation uses the donut */
