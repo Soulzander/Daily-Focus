@@ -472,8 +472,8 @@ function drawSvgDonut(completedWeighted, totalWeighted) {
 
   // Reset all arcs to invisible
   [arcEasy, arcMedium, arcHard].forEach(c => {
-    c.setAttribute("stroke-dasharray", `${C} ${C}`);
-    c.style.strokeDashoffset = C;
+    c.setAttribute("stroke-dasharray", `0 ${C}`);
+    c.style.strokeDashoffset = 0;
   });
 
   if (totalCompleted === 0) return; // No completed tasks
@@ -483,29 +483,30 @@ function drawSvgDonut(completedWeighted, totalWeighted) {
   const lenMedium = (mediumWeighted / totalCompleted) * C * (percent / 100);
   const lenHard   = (hardWeighted   / totalCompleted) * C * (percent / 100);
 
-  // Start from top (12 o'clock), draw arcs in sequence
-  let offset = C;
+  // Start from top (12 o'clock = 0), draw arcs CONTINUOUSLY in clockwise direction
+  let currentOffset = 0; // Start at 0 (12 o'clock position)
 
-  // Draw easy arc (green)
+  // Draw easy arc (green) - starts at 12 o'clock
   if (lenEasy > 0) {
     arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
-    arcEasy.style.strokeDashoffset = offset;
-    offset -= lenEasy;
+    arcEasy.style.strokeDashoffset = -currentOffset; // negative for clockwise
+    currentOffset += lenEasy; // move forward for next arc
   }
 
-  // Draw medium arc (blue)
+  // Draw medium arc (blue) - starts where easy ended
   if (lenMedium > 0) {
     arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
-    arcMedium.style.strokeDashoffset = offset;
-    offset -= lenMedium;
+    arcMedium.style.strokeDashoffset = -currentOffset; // continue from where easy ended
+    currentOffset += lenMedium; // move forward for next arc
   }
 
-  // Draw hard arc (red)
+  // Draw hard arc (red) - starts where medium ended
   if (lenHard > 0) {
     arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
-    arcHard.style.strokeDashoffset = offset;
+    arcHard.style.strokeDashoffset = -currentOffset; // continue from where medium ended
   }
 }
+
 
 /* renderObservation calculates weighted values and renders the donut */
 function renderObservation(){
