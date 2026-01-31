@@ -551,10 +551,11 @@ function buildStat(days){
     const s = getDaySummary(ds);
     assigned += s.assigned;
     completed += s.completed;
-    html += `<div class="statRow"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
+    html += `<div class="statRow" style="display:flex; justify-content:space-between; padding:4px 0;"><span>${d.toDateString().slice(0,10)}</span><span>${s.completed} / ${s.assigned}</span></div>`;
   }
   return { title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
 }
+
 function toggleStatDetail(d){
   const el = document.getElementById(`stat${d}Detail`);
   if (!el) return;
