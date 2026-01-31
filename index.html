@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -26,59 +27,59 @@ header, #dateStrip, #actionZone { padding: 8px; }
 
 /* Date strip */
 #dateStrip {
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  white-space:nowrap;
-  padding-bottom:6px;
+display:flex;
+gap:8px;
+overflow-x:auto;
+white-space:nowrap;
+padding-bottom:6px;
 }
 #dateStrip::-webkit-scrollbar { display:none; }
 
 .date-item {
-  min-width:90px;
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.35);
-  text-align:center;
-  cursor:pointer;
-  flex-shrink:0;
-  background: rgba(255,255,255,0.5);
-  color: #1b2430;
+min-width:90px;
+padding:8px 10px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.35);
+text-align:center;
+cursor:pointer;
+flex-shrink:0;
+background: rgba(255,255,255,0.5);
+color: #1b2430;
 }
 .date-item.active {
-  background: #222;
-  color: white;
-  border:1px solid rgba(0,0,0,0.6);
+background: #222;
+color: white;
+border:1px solid rgba(0,0,0,0.6);
 }
 
 /* action zone */
 #actionZone {
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.45);
+background: rgba(255,255,255,0.6);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border-bottom: 1px solid rgba(255,255,255,0.45);
 }
 
 /* content anchor container */
 #contentAnchor {
-  flex: 1;
-  overflow:auto;
-  background: var(--glass-bg);
-  border-radius: 18px;
-  margin: 8px;
-  padding: 12px;
+flex: 1;
+overflow:auto;
+background: var(–glass-bg);
+border-radius: 18px;
+margin: 8px;
+padding: 12px;
 }
 
 /* controls */
 #newTaskInput {
-  width:100%;
-  height:56px;
-  font-size:16px;
-  padding:12px 14px;
-  border-radius:12px;
-  border:1px solid #ccc;
-  box-sizing:border-box;
-  background: rgba(255,255,255,0.85);
+width:100%;
+height:56px;
+font-size:16px;
+padding:12px 14px;
+border-radius:12px;
+border:1px solid #ccc;
+box-sizing:border-box;
+background: rgba(255,255,255,0.85);
 }
 #difficultySelector { display:flex; gap:6px; margin-top:6px; }
 .diff-btn { flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; background: rgba(255,255,255,0.5); }
@@ -91,16 +92,16 @@ header, #dateStrip, #actionZone { padding: 8px; }
 /* task list */
 #taskList { width:100%; padding:8px 0; }
 .task {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  margin-bottom:8px;
-  border-radius:10px;
-  background: rgba(255,255,255,0.55);
-  border:1px solid rgba(255,255,255,0.35);
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px;
+margin-bottom:8px;
+border-radius:10px;
+background: rgba(255,255,255,0.55);
+border:1px solid rgba(255,255,255,0.35);
 }
-.task-text { flex:1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
+.task-text { flex:1; font-family: “Copperplate”, “Copperplate Gothic Light”, serif; font-weight:500; }
 .task-check { width:20px; height:20px; cursor:pointer; accent-color:#2e7d32; }
 .diff-badge { margin-left:auto; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; }
 .diff-badge.diff-1 { background:#4CAF50; color:#05260f; }
@@ -117,23 +118,23 @@ header, #dateStrip, #actionZone { padding: 8px; }
 
 /* small responsive */
 @media(min-width:900px){
-  #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
+#contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
 }
 
 /* Liquid glass for statistics blocks */
 .statBlock {
-  background: rgba(255,255,255,0.45);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 12px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.4),
-    0 8px 24px rgba(0,0,0,0.08);
+background: rgba(255,255,255,0.45);
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+border: 1px solid rgba(255,255,255,0.35);
+border-radius: 14px;
+padding: 14px;
+margin-bottom: 12px;
+box-shadow:
+inset 0 1px 0 rgba(255,255,255,0.4),
+0 8px 24px rgba(0,0,0,0.08);
 }
-  
+
 </style>
 </head>
 <body>
@@ -168,39 +169,49 @@ header, #dateStrip, #actionZone { padding: 8px; }
     <h3>Observation</h3>
     <p id="obsSummary"></p>
 
-    <!-- single continuous donut -->
-    <svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
-      <!-- background ring -->
-      <circle id="bgRing" cx="110" cy="110" r="80" stroke="rgba(255,255,255,0.25)" />
-      <!-- progress ring (rotated so 0% is at top) -->
-      <circle id="progressRing" cx="110" cy="110" r="80" transform="rotate(-90 110 110)" stroke="#4CAF50" />
-      <text x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">
-        <tspan id="chartPercent">0%</tspan>
-      </text>
-      <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
-    </svg>
+```
+<!-- Multi-arc donut with 3 colored rings -->
+<svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
+  <!-- background ring -->
+  <circle id="bgRing" cx="110" cy="110" r="80" stroke="rgba(200,200,200,0.3)" />
+  <!-- Easy tasks arc (green) -->
+  <circle id="arcEasy" cx="110" cy="110" r="80" transform="rotate(-90 110 110)" stroke="#4CAF50" />
+  <!-- Medium tasks arc (blue) -->
+  <circle id="arcMedium" cx="110" cy="110" r="80" transform="rotate(-90 110 110)" stroke="#03A9F4" />
+  <!-- Hard tasks arc (red) -->
+  <circle id="arcHard" cx="110" cy="110" r="80" transform="rotate(-90 110 110)" stroke="#F44336" />
+  
+  <text x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">
+    <tspan id="chartPercent">0%</tspan>
+  </text>
+  <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
+</svg>
 
-    <p id="obsInsight"></p>
-    <p id="weeklyInsight"></p>
+<p id="obsInsight"></p>
+<p id="weeklyInsight"></p>
+```
+
   </section>
 
   <section id="statsPanel" aria-hidden="true">
     <h3>Statistics</h3>
 
-    <div class="statBlock" onclick="toggleStatDetail(7)">
-      <div class="statTitle" id="stat7Title"></div>
-      <div class="statDetail" id="stat7Detail"></div>
-    </div>
+```
+<div class="statBlock" onclick="toggleStatDetail(7)">
+  <div class="statTitle" id="stat7Title"></div>
+  <div class="statDetail" id="stat7Detail"></div>
+</div>
 
-    <div class="statBlock" onclick="toggleStatDetail(14)">
-      <div class="statTitle" id="stat14Title"></div>
-      <div class="statDetail" id="stat14Detail"></div>
-    </div>
+<div class="statBlock" onclick="toggleStatDetail(14)">
+  <div class="statTitle" id="stat14Title"></div>
+  <div class="statDetail" id="stat14Detail"></div>
+</div>
 
-    <div class="statBlock" onclick="toggleStatDetail(30)">
-      <div class="statTitle" id="stat30Title"></div>
-      <div class="statDetail" id="stat30Detail"></div>
-    </div>
+<div class="statBlock" onclick="toggleStatDetail(30)">
+  <div class="statTitle" id="stat30Title"></div>
+  <div class="statDetail" id="stat30Detail"></div>
+</div>
+```
 
   </section>
 
@@ -393,7 +404,7 @@ function analyzeBehavior() {
 
   for (const [task, stat] of Object.entries(taskStats)) {
     if (stat.missed >= 3 && stat.missed > stat.completed) {
-      return `“${task}” appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
+      return `"${task}" appears repeatedly missed. Consider lowering its difficulty or breaking it down.`;
     }
   }
 
@@ -427,8 +438,8 @@ function evaluateFinalInsight() {
   return "";
 }
 
-/* drawSvgDonut: single continuous ring, start at 12 o'clock, animated */
-function drawSvgDonut(completed, missed) {
+/* drawSvgDonut: multi-color continuous ring based on completed task difficulty weights */
+function drawSvgDonut(completedWeighted, totalWeighted) {
   const arcEasy   = document.getElementById("arcEasy");
   const arcMedium = document.getElementById("arcMedium");
   const arcHard   = document.getElementById("arcHard");
@@ -436,69 +447,88 @@ function drawSvgDonut(completed, missed) {
 
   if (!arcEasy || !arcMedium || !arcHard || !percentEl) return;
 
-  let easy = 0, medium = 0, hard = 0;
+  // Calculate weighted values for completed tasks only
+  let easyWeighted = 0, mediumWeighted = 0, hardWeighted = 0;
 
   (data.days[data.activeDate] || []).forEach(t => {
     if (!t.completed) return;
-    if (t.difficulty === 1) easy++;
-    else if (t.difficulty === 2) medium++;
-    else if (t.difficulty === 3) hard++;
+    const weight = t.difficulty || 1;
+    if (t.difficulty === 1) easyWeighted += weight;      // 1
+    else if (t.difficulty === 2) mediumWeighted += weight; // 2
+    else if (t.difficulty === 3) hardWeighted += weight;   // 3
   });
 
-  const total = easy + medium + hard;
-  const percent = (completed + missed)
-    ? Math.round((completed / (completed + missed)) * 100)
+  const totalCompleted = easyWeighted + mediumWeighted + hardWeighted;
+
+  // Calculate percentage
+  const percent = totalWeighted > 0 
+    ? Math.round((completedWeighted / totalWeighted) * 100)
     : 0;
 
   percentEl.textContent = `${percent}%`;
 
   const r = 80;
-  const C = 2 * Math.PI * r;
+  const C = 2 * Math.PI * r; // circumference
 
+  // Reset all arcs to invisible
   [arcEasy, arcMedium, arcHard].forEach(c => {
     c.setAttribute("stroke-dasharray", `${C} ${C}`);
     c.style.strokeDashoffset = C;
   });
 
-  if (!total) return;
+  if (totalCompleted === 0) return; // No completed tasks
 
-  const lenEasy   = (easy   / total) * C;
-  const lenMedium = (medium / total) * C;
-  const lenHard   = (hard   / total) * C;
+  // Calculate arc lengths proportional to weighted contribution
+  const lenEasy   = (easyWeighted   / totalCompleted) * C * (percent / 100);
+  const lenMedium = (mediumWeighted / totalCompleted) * C * (percent / 100);
+  const lenHard   = (hardWeighted   / totalCompleted) * C * (percent / 100);
 
+  // Start from top (12 o'clock), draw arcs in sequence
   let offset = C;
 
-  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
-  arcEasy.style.strokeDashoffset = offset;
-  offset -= lenEasy;
+  // Draw easy arc (green)
+  if (lenEasy > 0) {
+    arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
+    arcEasy.style.strokeDashoffset = offset;
+    offset -= lenEasy;
+  }
 
-  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
-  arcMedium.style.strokeDashoffset = offset;
-  offset -= lenMedium;
+  // Draw medium arc (blue)
+  if (lenMedium > 0) {
+    arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
+    arcMedium.style.strokeDashoffset = offset;
+    offset -= lenMedium;
+  }
 
-  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
-  arcHard.style.strokeDashoffset = offset;
+  // Draw hard arc (red)
+  if (lenHard > 0) {
+    arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
+    arcHard.style.strokeDashoffset = offset;
+  }
 }
 
-/* renderObservation uses the donut */
+/* renderObservation calculates weighted values and renders the donut */
 function renderObservation(){
   const tasks = data.days[data.activeDate] || [];
-  let completed = 0, missed = 0;
+  let completedWeighted = 0, totalWeighted = 0;
+  
   tasks.forEach(t=>{
     const w = t.difficulty || 1;
-    if (t.completed) completed += w;
-    else missed += w;
+    totalWeighted += w;
+    if (t.completed) completedWeighted += w;
   });
 
-  document.getElementById("obsSummary").textContent = `Effort completed: ${completed}, Effort missed: ${missed}`;
-  drawSvgDonut(completed, missed);
+  const missedWeighted = totalWeighted - completedWeighted;
+
+  document.getElementById("obsSummary").textContent = `Effort completed: ${completedWeighted}, Effort missed: ${missedWeighted}`;
+  drawSvgDonut(completedWeighted, totalWeighted);
 
   let dailyInsight = "";
-  if (completed === 0 && missed > 0) {
+  if (completedWeighted === 0 && missedWeighted > 0) {
     dailyInsight = "All planned effort was missed today. Consider lowering task difficulty.";
-  } else if (completed > 0 && missed === 0) {
+  } else if (completedWeighted > 0 && missedWeighted === 0) {
     dailyInsight = "You completed everything you planned today. Effort balance looks good.";
-  } else if (completed >= missed) {
+  } else if (completedWeighted >= missedWeighted) {
     dailyInsight = "More effort was completed than missed. Consistency is forming.";
   } else {
     dailyInsight = "Missed effort outweighs completion. Review task difficulty or volume.";
@@ -607,5 +637,6 @@ document.addEventListener("visibilitychange", () => {
 render();
 
 </script>
+
 </body>
 </html>
