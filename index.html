@@ -1,120 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Daily Focus</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <style>
 /* ---------- layout & theme ---------- */
+:root {
+  --glass-bg: rgba(255,255,255,0.06);
+  --panel-glass: rgba(255,255,255,0.45);
+}
+html,body { height:100%; }
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   display: flex;
   flex-direction: column;
   height: 100vh;
-
-  background: radial-gradient(
-    circle at top left,
-    #7E97FF 0%,
-    #bdc3c7 45%,
-    #2c3e50 100%
-  );
+  background: radial-gradient(circle at top left,#7E97FF 0%, #bdc3c7 45%, #2c3e50 100%);
+  color:#0e1320;
 }
 
 /* Header + zones */
-header, #dateStrip, #actionZone {
-  padding: 8px;
-}
+header, #dateStrip, #actionZone { padding: 8px; }
 
-/* Date strip (scrollable last 7 days) */
+/* Date strip */
 #dateStrip {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 6px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  white-space:nowrap;
+  padding-bottom:6px;
 }
-#dateStrip::-webkit-scrollbar { display: none; }
+#dateStrip::-webkit-scrollbar { display:none; }
 
 .date-item {
-  min-width: 90px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  text-align: center;
-  cursor: pointer;
-  flex-shrink: 0;
+  min-width:90px;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.35);
+  text-align:center;
+  cursor:pointer;
+  flex-shrink:0;
+  background: rgba(255,255,255,0.5);
+  color: #1b2430;
 }
 .date-item.active {
   background: #222;
   color: white;
+  border:1px solid rgba(0,0,0,0.6);
 }
 
+/* action zone */
 #actionZone {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255,255,255,0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+  border-bottom: 1px solid rgba(255,255,255,0.45);
 }
 
-/* content anchor: make it take remaining height and scroll */
+/* content anchor container */
 #contentAnchor {
   flex: 1;
-  overflow: auto;
-  background: rgba(255,255,255,0.06);
+  overflow:auto;
+  background: var(--glass-bg);
   border-radius: 18px;
   margin: 8px;
   padding: 12px;
 }
 
-/* Task list */
-#taskList {
-  width: 100%;
-  padding: 8px 0;
-}
-
-/* Task row */
-.task {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.35);
-}
-.task-text { flex: 1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
-
-/* difficulty colours */
-.task.diff-1 .task-text { color: #2E7D32; }
-.task.diff-2 .task-text { color: #0277BD; }
-.task.diff-3 .task-text { color: #C62828; }
-
-/* completed / missed / hover */
-.task.completed { opacity: 0.75; transition: box-shadow .3s, opacity .3s; }
-.task.incomplete-today { color: #222; }
-.task.missed { color: #b71c1c; opacity: 0.8; }
-.task.clickable { cursor: pointer; }
-.task.read-only { cursor: default; }
-
-.task-check { width:18px; height:18px; cursor:pointer; accent-color:#2e7d32; }
-.diff-badge {
-  margin-left:auto; padding: 2px 8px; border-radius:999px; font-weight:600; font-size:12px; line-height:1.2;
-  font-family: system-ui, Arial Rounded MT Bold, Arial, sans-serif;
-  background: rgba(255,255,255,0.55);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-.diff-badge.diff-1 { background:#4CAF50; color:#0b2e13; }
-.diff-badge.diff-2 { background:#03A9F4; color:#012a3a; }
-.diff-badge.diff-3 { background:#F44336; color:#3a0503; }
-
-/* input and controls */
+/* controls */
 #newTaskInput {
-  width:100%; height:56px; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box;
+  width:100%;
+  height:56px;
+  font-size:16px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
   background: rgba(255,255,255,0.85);
 }
 #difficultySelector { display:flex; gap:6px; margin-top:6px; }
@@ -125,38 +88,39 @@ header, #dateStrip, #actionZone {
 #actionButtons { display:flex; gap:8px; margin-top:8px; }
 #actionButtons button { flex:1; height:48px; font-size:16px; border-radius:10px; background: rgba(255,255,255,0.5); }
 
-/* Panels - hidden by default so they don't show on first load */
-#observationPanel, #statsPanel { display: none; color: #0e1320; }
-
-/* stats card */
-.statBlock { margin-top:12px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.45); cursor:pointer; }
-.statRow { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #ddd; }
-.statRow:last-child { border-bottom:none; }
-
-/* --------- SVG donut styles --------- */
-#obsChartSvg {
-  display: block;
-  margin: 8px auto;
-  width: 220px;
-  height: 220px;
+/* task list */
+#taskList { width:100%; padding:8px 0; }
+.task {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  margin-bottom:8px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.55);
+  border:1px solid rgba(255,255,255,0.35);
 }
-#obsChartSvg circle {
-  fill: none;
-  stroke-width: 20;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 700ms ease;
-}
-#arcEasy { stroke: #4CAF50; }
-#arcMedium { stroke: #03A9F4; }
-#arcHard { stroke: #F44336; }
+.task-text { flex:1; font-family: "Copperplate", "Copperplate Gothic Light", serif; font-weight:500; }
+.task-check { width:20px; height:20px; cursor:pointer; accent-color:#2e7d32; }
+.diff-badge { margin-left:auto; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; }
+.diff-badge.diff-1 { background:#4CAF50; color:#05260f; }
+.diff-badge.diff-2 { background:#03A9F4; color:#012a3a; }
+.diff-badge.diff-3 { background:#F44336; color:#3a0503; }
+.task.completed { opacity:0.8; }
 
-/* small responsive tweaks */
-@media (min-width:900px){
+/* observation / stats panels hidden by default */
+#observationPanel, #statsPanel { display:none; color:#0e1320; }
+
+/* SVG donut */
+#obsChartSvg { display:block; margin:8px auto; width:220px; height:220px; }
+#obsChartSvg circle { fill:none; stroke-width:20; stroke-linecap:round; transition: stroke-dashoffset 800ms ease, stroke 400ms ease; }
+
+/* small responsive */
+@media(min-width:900px){
   #contentAnchor { max-width:900px; margin-left:auto; margin-right:auto; }
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -181,7 +145,6 @@ header, #dateStrip, #actionZone {
   </div>
 </section>
 
-<!-- single content anchor (only one set of panels) -->
 <div id="contentAnchor">
 
   <main id="taskList" aria-live="polite"></main>
@@ -190,16 +153,15 @@ header, #dateStrip, #actionZone {
     <h3>Observation</h3>
     <p id="obsSummary"></p>
 
-    <!-- SVG donut (replaces canvas) -->
+    <!-- single continuous donut -->
     <svg id="obsChartSvg" viewBox="0 0 220 220" role="img" aria-label="Observation donut chart">
-      <!-- rotate group so 0% starts at top -->
-      <g transform="rotate(-90 110 110)">
-        <circle id="arcEasy"   cx="110" cy="110" r="80" />
-        <circle id="arcMedium" cx="110" cy="110" r="80" />
-        <circle id="arcHard"   cx="110" cy="110" r="80" />
-      </g>
-
-      <text id="chartPercent" x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">0%</text>
+      <!-- background ring -->
+      <circle id="bgRing" cx="110" cy="110" r="80" stroke="rgba(255,255,255,0.25)" />
+      <!-- progress ring (rotated so 0% is at top) -->
+      <circle id="progressRing" cx="110" cy="110" r="80" transform="rotate(-90 110 110)" stroke="#4CAF50" />
+      <text x="110" y="98" text-anchor="middle" font-size="22" font-weight="600" fill="#0e1320">
+        <tspan id="chartPercent">0%</tspan>
+      </text>
       <text x="110" y="122" text-anchor="middle" font-size="12" fill="#0e1320">Completed</text>
     </svg>
 
@@ -230,21 +192,31 @@ header, #dateStrip, #actionZone {
 </div>
 
 <script>
+/* ------------------------------
+   Data & helpers
+   ------------------------------ */
 const STORAGE_KEY = "daily-focus-data";
 
 function getToday() {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return now.toLocaleDateString("en-CA"); // YYYY-MM-DD (local)
+  // Return YYYY-MM-DD in local time using en-CA formatting
+  return new Date().toLocaleDateString("en-CA");
 }
 
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDate:getToday() };
-const today = getToday();
-data.activeDate = today;
-if (!data.days[today]) data.days[today] = [];
-save(); // uses function below (hoisted)
+let data = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { days:{}, activeDate:getToday() };
+  } catch (e) {
+    return { days:{}, activeDate:getToday() };
+  }
+})();
 
-document.getElementById("fullDate").textContent = new Date(today).toDateString();
+const today = getToday();
+// ensure activeDate exists but don't overwrite user's selection unless invalid or future
+if (!data.activeDate) data.activeDate = today;
+if (!data.days[today]) data.days[today] = [];
+save();
+
+document.getElementById("fullDate").textContent = new Date(data.activeDate || today).toDateString();
 
 /* Difficulty selector */
 let selectedDifficulty = 1;
@@ -256,7 +228,9 @@ document.querySelectorAll(".diff-btn").forEach(b=>{
   };
 });
 
-/* Dates */
+/* Dates: render and selection.
+   Important: use the same YYYY-MM-DD format everywhere (local, en-CA)
+*/
 function renderDateStrip() {
   const strip = document.getElementById("dateStrip");
   strip.innerHTML = "";
@@ -264,14 +238,12 @@ function renderDateStrip() {
   for (let i = 0; i < 7; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split("T")[0];
+    const ds = d.toLocaleDateString("en-CA"); // YYYY-MM-DD local
+    const label = d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
 
     const item = document.createElement("div");
     item.className = "date-item";
-    item.textContent = d.toLocaleDateString(undefined, {
-      day: "numeric",
-      month: "short"
-    });
+    item.textContent = label;
 
     if (ds === data.activeDate) item.classList.add("active");
     item.onclick = () => selectDate(ds);
@@ -280,8 +252,10 @@ function renderDateStrip() {
 }
 
 function selectDate(date){
+  // date expected in YYYY-MM-DD (local)
   closePanels();
   data.activeDate = date;
+  // do NOT create a new day array here unless user adds tasks; this allows viewing empty days
   save();
   render();
 }
@@ -354,9 +328,10 @@ function toggleTask(i){
 }
 
 document.getElementById("addTaskBtn").onclick = () => {
-  if (data.activeDate !== today) return;
+  if (data.activeDate !== today) return; // only allow adding on active today
   const inp = document.getElementById("newTaskInput");
   if (!inp.value.trim()) return;
+  if (!data.days[today]) data.days[today] = [];
   data.days[today].push({
     text: inp.value.trim(),
     completed: false,
@@ -367,13 +342,16 @@ document.getElementById("addTaskBtn").onclick = () => {
   renderTasks();
 };
 
-/* Observation helpers */
+/* -------------------------
+   Observation / donut logic
+   ------------------------- */
+
 function getRecentDates(days) {
   const dates = [];
   for (let i = 0; i < days; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    dates.push(d.toISOString().split("T")[0]);
+    dates.push(d.toLocaleDateString("en-CA"));
   }
   return dates;
 }
@@ -412,7 +390,6 @@ function analyzeBehavior() {
 }
 
 const INSIGHT_KEY = "df_last_insight";
-
 function canShowInsight(message) {
   if (!message) return false;
   const last = JSON.parse(localStorage.getItem(INSIGHT_KEY));
@@ -422,11 +399,9 @@ function canShowInsight(message) {
   const withinCooldown = now - last.time < 48 * 60 * 60 * 1000;
   return !(sameMessage && withinCooldown);
 }
-
 function saveInsight(message) {
   localStorage.setItem(INSIGHT_KEY, JSON.stringify({ message, time: Date.now() }));
 }
-
 function evaluateFinalInsight() {
   const behaviorMessage = analyzeBehavior();
   if (!behaviorMessage) return "";
@@ -437,7 +412,54 @@ function evaluateFinalInsight() {
   return "";
 }
 
-/* RENDER OBSERVATION -> uses SVG donut */
+/* drawSvgDonut: single continuous ring, start at 12 o'clock, animated */
+function drawSvgDonut(completed, missed) {
+  const ring = document.getElementById("progressRing");
+  const percentText = document.getElementById("chartPercent");
+  if (!ring || !percentText) return;
+
+  const total = completed + missed;
+  const percent = total ? Math.round((completed / total) * 100) : 0;
+  percentText.textContent = percent + "%";
+
+  // choose color by which difficulty dominates in *completed* effort
+  // compute completed weight per difficulty
+  let easyC = 0, medC = 0, hardC = 0;
+  const tasks = data.days[data.activeDate] || [];
+  tasks.forEach(t => {
+    const w = t.difficulty || 1;
+    if (t.completed) {
+      if (t.difficulty === 1) easyC += w;
+      else if (t.difficulty === 2) medC += w;
+      else hardC += w;
+    }
+  });
+  let color = "#4CAF50"; // default green
+  if (medC >= easyC && medC >= hardC) color = "#03A9F4";
+  else if (hardC >= medC && hardC >= easyC) color = "#F44336";
+  ring.setAttribute("stroke", color);
+
+  // radius and circumference must match SVG r
+  const r = 80;
+  const C = 2 * Math.PI * r;
+
+  // set up dasharray and animate dashoffset so progress starts at top (rotate -90 present in SVG)
+  ring.setAttribute("stroke-dasharray", String(C));
+  // initial hidden
+  ring.style.strokeDashoffset = String(C);
+
+  // compute target offset for percent
+  const progress = percent / 100;
+  const target = C * (1 - progress); // 0 -> full circle, C -> empty
+
+  // animate on next frame
+  requestAnimationFrame(() => {
+    ring.style.transition = "stroke-dashoffset 800ms cubic-bezier(.2,.9,.2,1), stroke 400ms ease";
+    ring.style.strokeDashoffset = String(target);
+  });
+}
+
+/* renderObservation uses the donut */
 function renderObservation(){
   const tasks = data.days[data.activeDate] || [];
   let completed = 0, missed = 0;
@@ -464,104 +486,16 @@ function renderObservation(){
   document.getElementById("weeklyInsight").textContent = evaluateFinalInsight();
 }
 
-/* SVG donut drawing function */
-<svg id="obsChart" width="220" height="220" viewBox="0 0 220 220">
-  <!-- background ring -->
-  <circle
-    cx="110"
-    cy="110"
-    r="80"
-    fill="none"
-    stroke="rgba(255,255,255,0.25)"
-    stroke-width="16"
-  />
-
-  <!-- progress ring -->
-  <circle
-    id="progressRing"
-    cx="110"
-    cy="110"
-    r="80"
-    fill="none"
-    stroke="#4CAF50"
-    stroke-width="16"
-    stroke-linecap="round"
-    stroke-dasharray="0 999"
-    transform="rotate(-90 110 110)"
-  />
-
-  <!-- center text -->
-  <text x="110" y="105" text-anchor="middle" font-size="26" font-weight="600" fill="#222">
-    <tspan id="percentText">0%</tspan>
-  </text>
-  <text x="110" y="130" text-anchor="middle" font-size="14" fill="#333">
-    Completed
-  </text>
-</svg>
-
-  const sum = easy + medium + hard;
-  const percent = (completed + missed) ? Math.round((completed / (completed + missed)) * 100) : 0;
-  document.getElementById("chartPercent").textContent = `${percent}%`;
-
-  const arcEasy = document.getElementById("arcEasy");
-  const arcMedium = document.getElementById("arcMedium");
-  const arcHard = document.getElementById("arcHard");
-
-  // radius must match SVG circle r
-  const r = 80;
-  const C = 2 * Math.PI * r;
-
-  // prepare circles
-  [arcEasy, arcMedium, arcHard].forEach(c => {
-    if (!c) return;
-    c.style.transition = "stroke-dashoffset 700ms ease";
-    c.setAttribute("stroke-dasharray", `${C} ${C}`);
-    // start from zero (hidden)
-    c.style.strokeDashoffset = C;
-  });
-
-  if (!sum) {
-    // nothing completed — keep circles hidden
-    return;
-  }
-
-  // compute lengths
-  const lenEasy = (easy / sum) * C;
-  const lenMedium = (medium / sum) * C;
-  const lenHard = (hard / sum) * C;
-
-  // target offsets (place arcs in sequence easy -> medium -> hard)
-  const targetEasy = C - lenEasy;
-  const targetMedium = C - lenEasy - lenMedium;
-  const targetHard = C - lenEasy - lenMedium - lenHard;
-
-  // set dasharray per arc to clip lengths (so only segment visible)
-  arcEasy.setAttribute("stroke-dasharray", `${lenEasy} ${C}`);
-  arcMedium.setAttribute("stroke-dasharray", `${lenMedium} ${C}`);
-  arcHard.setAttribute("stroke-dasharray", `${lenHard} ${C}`);
-
-  // small timeout to ensure transition from initial value runs
-  requestAnimationFrame(() => {
-    // also use another rAF to be safe on some browsers
-    requestAnimationFrame(() => {
-      arcEasy.style.strokeDashoffset = targetEasy;
-      arcMedium.style.strokeDashoffset = targetMedium;
-      arcHard.style.strokeDashoffset = targetHard;
-    });
-  });
-}
-
 /* Statistics helpers */
 function getDaySummary(dateStr){
   const t = data.days[dateStr] || [];
   return { assigned: t.length, completed: t.filter(x=>x.completed).length };
 }
-
 function buildStat(days){
   let completed = 0, assigned = 0, html = "";
   for (let i=0; i<days; i++){
     const d = new Date(); d.setDate(d.getDate()-i);
-    const ds = d.toISOString().split("T")[0];
+    const ds = d.toLocaleDateString("en-CA");
     const s = getDaySummary(ds);
     assigned += s.assigned;
     completed += s.completed;
@@ -569,58 +503,41 @@ function buildStat(days){
   }
   return { title:`Last ${days} days - Completed ${completed} / Assigned ${assigned}`, detail: html };
 }
-
 function toggleStatDetail(d){
   const el = document.getElementById(`stat${d}Detail`);
   if (!el) return;
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-/* Panels handlers (TOGGLE SAFE) */
-
-// Observation toggle
+/* Panels toggle handlers (safe toggle) */
 document.getElementById("observeBtn").onclick = () => {
   const panel = document.getElementById("observationPanel");
   const taskList = document.getElementById("taskList");
-
   const isOpen = window.getComputedStyle(panel).display !== "none";
-
-  if (isOpen) {
-    closePanels(); // close & show tasks
-    return;
-  }
-
+  if (isOpen) { closePanels(); return; }
   closePanels();
   taskList.style.display = "none";
   panel.style.display = "block";
+  panel.setAttribute("aria-hidden","false");
   renderObservation();
 };
 
-// Statistics toggle
 document.getElementById("statsBtn").onclick = () => {
   const panel = document.getElementById("statsPanel");
   const taskList = document.getElementById("taskList");
-
   const isOpen = window.getComputedStyle(panel).display !== "none";
-
-  if (isOpen) {
-    closePanels(); // close & show tasks
-    return;
-  }
-
+  if (isOpen) { closePanels(); return; }
   closePanels();
   taskList.style.display = "none";
   panel.style.display = "block";
+  panel.setAttribute("aria-hidden","false");
 
-  [7, 14, 30].forEach(d => {
+  [7,14,30].forEach(d => {
     const r = buildStat(d);
     const titleEl = document.getElementById(`stat${d}Title`);
     const detailEl = document.getElementById(`stat${d}Detail`);
-
     titleEl.textContent = r.title;
     detailEl.innerHTML = r.detail;
-
-    // FORCE details closed on open
     detailEl.style.display = "none";
   });
 };
@@ -628,37 +545,46 @@ document.getElementById("statsBtn").onclick = () => {
 function closePanels(){
   const taskListEl = document.getElementById("taskList");
   if (taskListEl) taskListEl.style.display = "block";
-
   const obs = document.getElementById("observationPanel");
   const sp = document.getElementById("statsPanel");
   if (obs) { obs.style.display = "none"; obs.setAttribute("aria-hidden","true"); }
   if (sp) { sp.style.display = "none"; sp.setAttribute("aria-hidden","true"); }
 }
 
+/* storage helpers */
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
+/* syncToday: only reset activeDate when it's in the future or invalid.
+   Important: do NOT reset activeDate just because a day has no entry (that's why dates became non-clickable earlier).
+*/
 function syncToday() {
   const realToday = getToday();
-  if (data.activeDate === realToday) return;
-  if (!data.days[data.activeDate]) {
-    data.activeDate = realToday;
-    if (!data.days[realToday]) data.days[realToday] = [];
-    save();
-  }
+  // if activeDate is missing or in the future -> set to today
+  if (!data.activeDate) data.activeDate = realToday;
+  if (data.activeDate > realToday) data.activeDate = realToday;
+  // ensure today has an array so adding tasks works
+  if (!data.days[realToday]) data.days[realToday] = [];
+  save();
 }
 
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) render();
-});
-
+/* render everything */
 function render(){
   syncToday();
   renderDateStrip();
   renderTasks();
-  closePanels(); // keep panels hidden by default
+  closePanels(); // ensure panels hidden by default on render
+  // display proper fullDate (human readable) for header
+  document.getElementById("fullDate").textContent = new Date(data.activeDate).toDateString();
 }
 
+/* visibility handler */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) render();
+});
+
+/* initial render */
 render();
+
 </script>
 </body>
 </html>
