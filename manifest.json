@@ -3,7 +3,7 @@
   "name": "Daily Focus",
   "short_name": "Daily Focus",
   "description": "A daily task and focus tracking app with observation insights.",
-  "start_url": "/Daily-Focus/index.html",
+  "start_url": "https://soulzander.github.io/Daily-Focus/index.html",
   "scope": "/Daily-Focus/",
   "display": "standalone",
   "background_color": "#bdc3c7",
