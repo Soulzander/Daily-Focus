@@ -617,7 +617,8 @@ function syncToday() {
 }
 
 /* render everything */
-function render(){
+function 
+  (){
   syncToday();
   renderDateStrip();
   renderTasks();
@@ -634,6 +635,13 @@ document.addEventListener("visibilitychange", () => {
 /* initial render */
 render();
 
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
 </script>
 </body>
 </html>
