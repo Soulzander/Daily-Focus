@@ -2,7 +2,7 @@
   "name": "Daily Focus",
   "short_name": "DailyFocus",
   "description": "A minimal daily focus and task tracker",
-  "start_url": "./index.html",
+  "start_url": ".",
   "scope": "./",
   "display": "standalone",
   "background_color": "#bdd3c7",
