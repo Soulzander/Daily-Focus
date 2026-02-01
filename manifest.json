@@ -1,6 +1,6 @@
 {
   "name": "Daily Focus",
-  "short_name": "DailyFocus",
+  "short_name": "Daily Focus",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
